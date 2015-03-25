@@ -1,0 +1,29 @@
+{
+    "key1":"val1",
+    "key2": {
+                "sub1":"[test] ] [ { } }{ ",
+                "sub2": {
+                            "list1":["val1","val2","val3"],
+                            "sub2.2":"val2.2"
+                        },
+                "sub3": [
+                            {"sub3.1":"valsub3.1", "sub3.2":"valsub3.2"},
+                            {"sub3.3":"{test}", "sub3.4":"[test] ] [ { } }{"}
+                        ]
+            },
+
+    "key3" :{
+                "sub2":"valsub2",
+                "sub3":"\r\n\\\t?\'\""
+            },
+
+    "key4" :[
+                "l1 \" ",
+                "l2",
+                {"l3":"vall3"},
+                ["l4.1","l4.2","l4.3"]
+            ],
+    "key5" : [-992.1,true,false,meow],
+    "key6" : [-242.1,123,-456,true,false,crap,True,TRUE]
+
+}
