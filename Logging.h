@@ -22,9 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef LOGGING_H
-#define LOGGING_H
-
+#pragma once
 #include <sstream>
 
 #define LOG(x) std::stringstream logss; logss << x; Dumais::WebSocket::Logging::log(logss.str())
@@ -57,5 +55,4 @@ namespace Dumais
     }
 };
 
-#endif
 

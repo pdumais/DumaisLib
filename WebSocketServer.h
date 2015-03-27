@@ -26,7 +26,7 @@ SOFTWARE.
 #include "IWebSocketHandler.h"
 #include <unordered_map>
 #include <list>
-#include "WSLogging.h"
+#include "Logging.h"
 
 namespace Dumais
 {
