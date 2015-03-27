@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Logging.h"
+#include "WSLogging.h"
 #include <stdio.h>
 #include <stdarg.h>
 
