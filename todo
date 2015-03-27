@@ -1,10 +1,9 @@
-part2:
-    logging must be compatible with other projects
+- support Sec-WebSocket-Protocol
+     https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
 
-part3:
-    support Sec-WebSocket-Protocol
-        https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
-
+- client library
+- 100% RFC compliance
+    
 
 
 
