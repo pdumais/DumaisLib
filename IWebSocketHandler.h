@@ -27,11 +27,19 @@ SOFTWARE.
 #include <string>
 #include "WebSocket.h"
 
+struct WebSocketMessage
+{
+    unsigned char* buffer;
+    size_t size;
+    unsigned char type;
+    bool fin;
+};
+
 class IWebSocketHandler
 {
 public:
     virtual bool onWebSocketRequest(const std::string& request)=0;
     virtual void onNewConnection(WebSocket* ws)=0;
     virtual void onConnectionClosed(WebSocket* ws)=0;
-    virtual void onMessage(WebSocket* ws, unsigned char* buf, size_t size)=0;
+    virtual void onMessage(WebSocket* ws, WebSocketMessage message)=0;
 };

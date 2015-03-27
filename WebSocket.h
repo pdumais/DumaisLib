@@ -35,6 +35,13 @@ enum class Protocol
     WebSocket
 };
 
+enum class WSState
+{
+    Connected,
+    Closing,
+    Closed
+};
+
 struct WSHeader
 {
     unsigned char opcode:4;
@@ -48,13 +55,14 @@ class WebSocket
 {
 private:
     Protocol protocol;
-    bool connected;
     char* data;
     size_t currentBufferSize;
     size_t dataIndex;
     IWebSocketHandler* handler;
     unsigned int maxData;
     unsigned int expectedLength;
+    time_t closingTimeStamp;
+    WSState connectionState;
 
     struct SendBuffer
     {
@@ -67,7 +75,8 @@ private:
     SendBuffer currentSendBuffer;
 
     void resetMessageBuffer();
-    void disconnect();
+    void abort();
+    void close();
     void reject(int code, const std::string& response);
     void checkHTTPBuffer();
     void sendData(const char* buffer, size_t size, bool takeBufferOwnership=false);
@@ -83,6 +92,7 @@ public:
     bool processData(char* data, size_t size);
     size_t getTxData(char** buf);
     void onDataSent(size_t size);
+    bool watchdog();
 
     void sendText(const std::string& text);
     void sendBinary(char* buffer, size_t size);

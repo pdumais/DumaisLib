@@ -1,9 +1,7 @@
-
-specify text or binary in callback
-check fin and fragmentation and support when sending
 ping/pong
-close connection (must reply)
-support protocols
+    
+support Sec-WebSocket-Protocol
+    https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
 
 
 

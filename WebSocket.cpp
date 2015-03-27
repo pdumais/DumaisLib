@@ -40,6 +40,7 @@ SOFTWARE.
 #define WS_PING 0x09
 #define WS_PONG 0x0A
 
+#define CLOSING_TIMEOUT 5
 
 WebSocket::WebSocket(IWebSocketHandler* h)
 {
@@ -50,7 +51,6 @@ WebSocket::WebSocket(IWebSocketHandler* h)
     this->data = new char[this->currentBufferSize];
     this->dataIndex = 0;
     this->currentSendBuffer.buffer = 0;
-    this->connected = true;
     this->txList = new MPSCRingBuffer<SendBuffer>(1000);
 }
 
@@ -109,12 +109,12 @@ void WebSocket::switchProtocol(const std::string& key)
     this->protocol = Protocol::WebSocket;
     this->dataIndex = 0;
     this->expectedLength = sizeof(WSHeader);
+    this->connectionState = WSState::Connected;
     if (this->handler) this->handler->onNewConnection(this);
 }
 
 bool WebSocket::processData(char* buf, size_t size)
 {   
-    if (!this->connected) return false;
     if (this->protocol == Protocol::HTTP)
     {
         size_t tmp = this->dataIndex + size;
@@ -140,9 +140,10 @@ bool WebSocket::processData(char* buf, size_t size)
             size-=toRead;
             buf+=toRead;
         }
+        if (this->connectionState == WSState::Closed) return false;
     }
 
-    return this->connected;
+    return true;
 }
 
 void WebSocket::parseWSMessage(char* buf, size_t size)
@@ -168,7 +169,7 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
         {
             // must disconnect because this is not allowed as per RFC
             // "All frames sent from client to server have this bit set to 1." - RFC6455, section 5.2
-            this->disconnect();
+            this->close();
             LOG("Client sent unmasked data.\r\n");
             return;
         }
@@ -201,7 +202,7 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
                 if (sizeof(size_t) != 8)
                 {
                     LOG("64bit payload size not supported here\r\n");
-                    this->disconnect();
+                    this->close();
                     return;
                 }
                 //TODO: in assembly, this could be done in 2 instructions
@@ -241,12 +242,25 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
             }
             if (header->opcode == WS_CONTINUE || header->opcode == WS_TEXT || header->opcode == WS_BINARY)
             {
-                if (this->handler) this->handler->onMessage(this, payload, payloadSize);
+                WebSocketMessage msg;
+                msg.buffer = payload;
+                msg.size = payloadSize;
+                msg.type = header->opcode;
+                msg.fin = header->fin;
+                if (this->handler) this->handler->onMessage(this, msg);
             }
             else if (header->opcode == WS_CLOSE)
             {
-                //TODO:  I think I need to reply to this
-                this->disconnect();
+                // if the Close was initiated by the client then we are in Connected state
+                // we must send a Close confirmation. But if we are in Closing state, it means that
+                // this message is a confirmation from the Close that we sent earlier. In that
+                // case, don't send a confirmation and just close the socket.
+                // RFC6455 section 5.5.1
+                if (this->connectionState == WSState::Connected)
+                {
+                    this->close();
+                }
+                this->abort();
             }
             else if (header->opcode == WS_PING)
             {
@@ -255,7 +269,7 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
             else
             {
                 LOG("Received invalid opcode\r\n");
-                this->disconnect();
+                this->close();
                 return;
             }
 
@@ -298,6 +312,7 @@ std::string WebSocket::getHeader(std::string header)
 
 size_t WebSocket::getTxData(char** buf)
 {
+    if (this->connectionState != WSState::Connected) return 0;
     SendBuffer sendBuffer;
     if (currentSendBuffer.buffer == 0 && txList->get(sendBuffer))
     {
@@ -347,15 +362,49 @@ void WebSocket::sendData(const char* buffer, size_t size, bool takeBufferOwnersh
     {
         LOG("Tx queue overflow");
         delete[] sendBuffer.buffer;
-        this->disconnect();    
+        this->abort();    
     }
 }
 
-void WebSocket::disconnect()
+void WebSocket::abort()
 {
-    this->connected = false;
+    // We just abort the connection immediately
+    this->connectionState = WSState::Closed;
+}
+
+void WebSocket::close()
+{
+    char* packet = new char[sizeof(WSHeader)];
+    WSHeader* header = (WSHeader*)packet;
+    header->reserved = 0;
+    header->mask = 0;
+    header->fin = 1;
+    header->opcode = WS_CLOSE;
+    header->payloadSize = 0;
+    this->sendData(packet, sizeof(WSHeader), true);
+
+    this->connectionState = WSState::Closing;
+    time(&this->closingTimeStamp);
 }
     
+bool WebSocket::watchdog()
+{
+    if (this->protocol != Protocol::WebSocket) return true;
+
+    if (this->connectionState == WSState::Closing)
+    {
+        time_t t;
+        time(&t);
+
+        if (t >= (this->closingTimeStamp+CLOSING_TIMEOUT))
+        {
+            this->abort();
+            return false;
+        }
+    }
+    return true;
+}
+
 void WebSocket::sendWSData(int type, const char* buffer, size_t size)
 {
     char* packet = new char[size+sizeof(WSHeader)+8]; // make it bigger in case we need 8 bytes for payloadSize

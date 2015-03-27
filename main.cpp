@@ -20,10 +20,10 @@ public:
         printf("websocket connection closed %x\r\n", ws);
     }
 
-    void onMessage(WebSocket* ws, unsigned char* buf, size_t size)
+    void onMessage(WebSocket* ws, WebSocketMessage message)
     {
         std::string st;
-        st.assign((char*)buf,size);
+        st.assign((char*)message.buffer,message.size);
         printf("Message: [%s]\r\n",st.c_str());
         ws->sendText("Oh yeah! It works!");
     }

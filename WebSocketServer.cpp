@@ -94,6 +94,15 @@ bool WebSocketServer::work(int waitTimeout)
         }
     }
 
+    for (auto& it : this->webSockets)
+    {
+        if (!it.second->watchdog())
+        {
+            close(it.first);
+            this->webSockets.erase(this->webSockets.find(it.first));
+        }
+    }
+    
     // This will be called evrytime without even checking if the FD is available. 
     // We should probably check if the socket is ready to avoid failed send attempts
     this->processSend();
