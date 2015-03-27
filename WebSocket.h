@@ -26,74 +26,82 @@ SOFTWARE.
 #include <queue>
 #include <string>
 #include "MPSCRingBuffer.h"
+#include <sys/epoll.h>
 
-class IWebSocketHandler;
-
-enum class Protocol
+namespace Dumais
 {
-    HTTP,
-    WebSocket
-};
-
-enum class WSState
-{
-    Connected,
-    Closing,
-    Closed
-};
-
-struct WSHeader
-{
-    unsigned char opcode:4;
-    unsigned char reserved:3;
-    unsigned char fin:1;
-    unsigned char payloadSize:7;
-    unsigned char mask:1;
-} __attribute__((packed));
-
-class WebSocket
-{
-private:
-    Protocol protocol;
-    char* data;
-    size_t currentBufferSize;
-    size_t dataIndex;
-    IWebSocketHandler* handler;
-    unsigned int maxData;
-    unsigned int expectedLength;
-    time_t closingTimeStamp;
-    WSState connectionState;
-
-    struct SendBuffer
+    namespace WebSocket
     {
-        char* buffer;
-        size_t size;
-        size_t currentIndex;
-        bool mustDeleteBuffer;
-    };
-    MPSCRingBuffer<SendBuffer>* txList;
-    SendBuffer currentSendBuffer;
+        class IWebSocketHandler;
 
-    void resetMessageBuffer();
-    void abort();
-    void close();
-    void reject(int code, const std::string& response);
-    void checkHTTPBuffer();
-    void sendData(const char* buffer, size_t size, bool takeBufferOwnership=false);
-    void sendWSData(int type, const char* buffer, size_t size);
-    void switchProtocol(const std::string& key);
-    void parseWSMessage(char* buf, size_t size);
-    std::string getHeader(std::string header);
+        enum class Protocol
+        {
+            HTTP,
+            WebSocket
+        };
 
-public:
-    WebSocket(IWebSocketHandler* handler);
-    ~WebSocket();
+        enum class WSState
+        {
+            Connected,
+            Closing,
+            Closed
+        };
 
-    bool processData(char* data, size_t size);
-    size_t getTxData(char** buf);
-    void onDataSent(size_t size);
-    bool watchdog();
+        struct WSHeader
+        {
+            unsigned char opcode:4;
+            unsigned char reserved:3;
+            unsigned char fin:1;
+            unsigned char payloadSize:7;
+            unsigned char mask:1;
+        } __attribute__((packed));
 
-    void sendText(const std::string& text);
-    void sendBinary(char* buffer, size_t size);
-};
+        class WebSocket
+        {
+        private:
+            Protocol protocol;
+            char* data;
+            size_t currentBufferSize;
+            size_t dataIndex;
+            IWebSocketHandler* handler;
+            unsigned int maxData;
+            unsigned int expectedLength;
+            time_t closingTimeStamp;
+            WSState connectionState;
+
+            struct SendBuffer
+            {
+                char* buffer;
+                size_t size;
+                size_t currentIndex;
+                bool mustDeleteBuffer;
+            };
+            MPSCRingBuffer<SendBuffer>* txList;
+            SendBuffer currentSendBuffer;
+
+            void resetMessageBuffer();
+            void abort();
+            void close();
+            void reject(int code, const std::string& response);
+            void checkHTTPBuffer();
+            void sendData(const char* buffer, size_t size, bool takeBufferOwnership=false);
+            void sendWSData(int type, const char* buffer, size_t size);
+            void switchProtocol(const std::string& key);
+            void parseWSMessage(char* buf, size_t size);
+            void processPing(char* buf, size_t size);
+            std::string getHeader(std::string header);
+
+        public:
+            WebSocket(IWebSocketHandler* handler);
+            ~WebSocket();
+
+            bool processData(char* data, size_t size);
+            size_t getTxData(char** buf);
+            void onDataSent(size_t size);
+            bool watchdog();
+
+            void sendText(const std::string& text);
+            void sendBinary(char* buffer, size_t size);
+        };
+    }
+}

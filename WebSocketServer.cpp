@@ -33,10 +33,11 @@ SOFTWARE.
 #include <arpa/inet.h>
 #include <netdb.h>
 
+using namespace Dumais::WebSocket;
 
-WebSocketServer::WebSocketServer(int port, int maxConnections, Dumais::Logging::ILogger* logger)
+WebSocketServer::WebSocketServer(int port, int maxConnections, Dumais::WebSocket::ILogger* logger)
 {
-    Dumais::Logging::Logging::logger = logger;
+    Dumais::WebSocket::Logging::logger = logger;
     this->epollFD = -1;
     this->maxConnections = maxConnections;
 

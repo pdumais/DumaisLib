@@ -1,11 +1,18 @@
-SOURCES = main.cpp WebSocketServer.cpp WebSocket.cpp Logging.cpp sha1.cpp base64.cpp
+SOURCES = WebSocketServer.cpp WebSocket.cpp Logging.cpp sha1.cpp base64.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 .cpp.o:
 	g++ -g -std=c++11 -c $< -o $@
 
-all: $(OBJECTS)
-	g++ -g $(OBJECTS)
+
+all: lib
+	g++ -g -std=c++11 main.cpp websocket.a
+
+lib: $(OBJECTS)
+	$(AR) rcs websocket.a $(OBJECTS)
+
 
 clean:
-	rm *.o
+	-rm *.o
+	-rm *.a
+	-rm a.out

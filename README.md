@@ -27,6 +27,14 @@ SECURITY
 SSL is not supported at the moment. Although it would be pretty easy to snap openSSL in WebSocketServer.cpp.
 There are not plans on doing this for the moment.
 
+PING/PONG
+==============
+The library supports ping/pong. But it was never tested because my browser doesn't send pings.
+RFC6455, sectioon 5.5.3 says: A Pong frame sent in response to a Ping frame must have identical 
+"Application data" as found in the message body of the Ping frame being replied to. So I'm not
+sure if it means I should unmask it or not. This implementation does not unmask it, the message
+is just echoed back with the opcode changed.
+
 RFC6455
 ==============
 The library is not 100% RFC6455 compliant. Some things left to do (among others) are:

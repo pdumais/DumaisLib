@@ -26,7 +26,7 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdarg.h>
 
-using namespace Dumais::Logging;
+using namespace Dumais::WebSocket;
 
 ILogger* Logging::logger = 0;
 

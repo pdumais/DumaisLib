@@ -28,34 +28,40 @@ SOFTWARE.
 #include <list>
 #include "Logging.h"
 
-class WebSocketServer
+namespace Dumais
 {
-private:
-    void addFdToEpoll(int fd);
-    void processSend();
-    void processReceive(int fd);
-    bool processAccept();
-    void abort();
+    namespace WebSocket
+    {
 
-    // maps WebSockets using associated bsd socket
-    std::unordered_map<int,WebSocket*> webSockets;
+        class WebSocketServer
+        {
+        private:
+            void addFdToEpoll(int fd);
+            void processSend();
+            void processReceive(int fd);
+            bool processAccept();
+            void abort();
 
-    int maxConnections;
-    int listenSocket;
-    int epollFD;
-    struct epoll_event *epollEvents;
-    IWebSocketHandler* webSocketHandler;
+            // maps WebSockets using associated bsd socket
+            std::unordered_map<int,WebSocket*> webSockets;
 
-public:
-    WebSocketServer(int port, int maxConnections, Dumais::Logging::ILogger* logger);    
-    ~WebSocketServer();    
+            int maxConnections;
+            int listenSocket;
+            int epollFD;
+            struct epoll_event *epollEvents;
+            IWebSocketHandler* webSocketHandler;
 
-    // reactor function
-    bool work(int waitTimeout);
-    
-    void setWebSocketHandler(IWebSocketHandler* handler);
-};
+        public:
+            WebSocketServer(int port, int maxConnections, Dumais::WebSocket::ILogger* logger);    
+            ~WebSocketServer();    
 
+            // reactor function
+            bool work(int waitTimeout);
+            
+            void setWebSocketHandler(IWebSocketHandler* handler);
+        };
+    }
+}
 
 
 

@@ -27,11 +27,11 @@ SOFTWARE.
 
 #include <sstream>
 
-#define LOG(x) std::stringstream logss; logss << x; Dumais::Logging::Logging::log(logss.str())
+#define LOG(x) std::stringstream logss; logss << x; Dumais::WebSocket::Logging::log(logss.str())
 
 namespace Dumais
 {
-    namespace Logging
+    namespace WebSocket
     {
         class ILogger
         {

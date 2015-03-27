@@ -1,7 +1,9 @@
-ping/pong
-    
-support Sec-WebSocket-Protocol
-    https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
+part2:
+    logging must be compatible with other projects
+
+part3:
+    support Sec-WebSocket-Protocol
+        https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
 
 
 

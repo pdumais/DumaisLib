@@ -42,6 +42,8 @@ SOFTWARE.
 
 #define CLOSING_TIMEOUT 5
 
+using namespace Dumais::WebSocket;
+
 WebSocket::WebSocket(IWebSocketHandler* h)
 {
     this->maxData = MAX_DATA;
@@ -235,13 +237,13 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
             unsigned char* payload = (unsigned char*)&this->data[headerSize];
             size_t payloadSize = this->expectedLength - headerSize;
 
-            // decode using mask. RFC6455, section 5.3
-            for (int i = 0; i < payloadSize; i++)
-            {
-                payload[i] ^= mask[i%4];
-            }
             if (header->opcode == WS_CONTINUE || header->opcode == WS_TEXT || header->opcode == WS_BINARY)
             {
+                // decode using mask. RFC6455, section 5.3
+                for (int i = 0; i < payloadSize; i++)
+                {
+                    payload[i] ^= mask[i%4];
+                }
                 WebSocketMessage msg;
                 msg.buffer = payload;
                 msg.size = payloadSize;
@@ -258,13 +260,14 @@ void WebSocket::parseWSMessage(char* buf, size_t size)
                 // RFC6455 section 5.5.1
                 if (this->connectionState == WSState::Connected)
                 {
+                    //TODO: should reply with the same payload. This is non-compliant
                     this->close();
                 }
                 this->abort();
             }
             else if (header->opcode == WS_PING)
             {
-                //TODO: reply with PONG
+                this->processPing(this->data, payloadSize+headerSize);
             }
             else
             {
@@ -447,5 +450,22 @@ void WebSocket::sendText(const std::string& text)
 void WebSocket::sendBinary(char* buffer, size_t size)
 {
     this->sendWSData(WS_BINARY, buffer, size);
+}
+
+void WebSocket::processPing(char* buf, size_t size)
+{
+    // It is unclear if we need to decode the payload when responding to a ping request
+    // because RFC6455, sectioon 5.5.3 says A Pong frame sent in response to a Ping frame 
+    // must have identical "Application data" as found in the message body of the Ping frame being replied to.
+    //
+    // Therefore, I will not unmask the data
+
+    WSHeader* header = (WSHeader*)buf;
+    header->opcode = WS_PONG;
+
+    // we should probably add this in front of the queue to give it more priority
+    // but we would open ourselves to DOS attacks.
+    this->sendData(buf, size, false);
+    LOG("Ping. Pong!\r\n");
 }
 

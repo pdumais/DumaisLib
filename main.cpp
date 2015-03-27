@@ -1,6 +1,8 @@
 #include "WebSocketServer.h"
 #include "IWebSocketHandler.h"
 
+using namespace Dumais::WebSocket;
+
 class Test: public IWebSocketHandler
 {
 public:
@@ -33,7 +35,7 @@ public:
 int main(int argc, char** argv)
 {
     Test test;
-    WebSocketServer ws(8056,20, new Dumais::Logging::ConsoleLogger());
+    WebSocketServer ws(8056,20, new Dumais::WebSocket::ConsoleLogger());
     ws.setWebSocketHandler(&test);
     while (1)
     {
