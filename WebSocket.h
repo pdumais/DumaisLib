@@ -27,6 +27,8 @@ SOFTWARE.
 #include <string>
 #include "MPSCRingBuffer.h"
 #include <sys/epoll.h>
+#include "HTTPProtocolParser.h"
+#include "WSProtocolParser.h"
 
 namespace Dumais
 {
@@ -47,27 +49,15 @@ namespace Dumais
             Closed
         };
 
-        struct WSHeader
-        {
-            unsigned char opcode:4;
-            unsigned char reserved:3;
-            unsigned char fin:1;
-            unsigned char payloadSize:7;
-            unsigned char mask:1;
-        } __attribute__((packed));
-
         class WebSocket
         {
         private:
             Protocol protocol;
-            char* data;
-            size_t currentBufferSize;
-            size_t dataIndex;
             IWebSocketHandler* handler;
-            unsigned int maxData;
-            unsigned int expectedLength;
             time_t closingTimeStamp;
             WSState connectionState;
+            HTTPProtocolParser httpParser;
+            WSProtocolParser wsParser;
 
             struct SendBuffer
             {
@@ -79,17 +69,12 @@ namespace Dumais
             MPSCRingBuffer<SendBuffer>* txList;
             SendBuffer currentSendBuffer;
 
-            void resetMessageBuffer();
-            void abort();
-            void close();
-            void reject(int code, const std::string& response);
-            void checkHTTPBuffer();
+            void abortWebSocket();
+            void closeWebSocket();
+            void checkHTTPBuffer(char* buffer, size_t size);
             void sendData(const char* buffer, size_t size, bool takeBufferOwnership=false);
-            void sendWSData(int type, const char* buffer, size_t size);
-            void switchProtocol(const std::string& key);
-            void parseWSMessage(char* buf, size_t size);
             void processPing(char* buf, size_t size);
-            std::string getHeader(std::string header);
+            void processWholeWSPacket(char* buffer, size_t headerSize, size_t payloadSize);
 
         public:
             WebSocket(IWebSocketHandler* handler);

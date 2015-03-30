@@ -1,4 +1,4 @@
-SOURCES = WebSocketServer.cpp WebSocket.cpp Logging.cpp sha1.cpp base64.cpp
+SOURCES = WebSocketServer.cpp WebSocket.cpp Logging.cpp sha1.cpp base64.cpp HTTPProtocolParser.cpp WSProtocolParser.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 .cpp.o:
