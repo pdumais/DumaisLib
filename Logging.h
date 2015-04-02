@@ -25,7 +25,7 @@ SOFTWARE.
 #pragma once
 #include <sstream>
 
-#define LOG(x) std::stringstream logss; logss << x; Dumais::WebSocket::Logging::log(logss.str())
+#define LOG(x) {std::stringstream logss; logss << x; Dumais::WebSocket::Logging::log(logss.str());}
 
 namespace Dumais
 {

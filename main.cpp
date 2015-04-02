@@ -6,8 +6,12 @@ using namespace Dumais::WebSocket;
 class Test: public IWebSocketHandler
 {
 public:
-    bool onWebSocketRequest(const std::string& request)
+    bool onWebSocketRequest(const std::string& request, 
+        std::map<std::string,std::string> protocols, 
+        std::string& chosenProtocol)
     {
+        if (protocols.find("protocol1") == protocols.end()) return false;
+        chosenProtocol = "protocol1";
         if (request == "/ws") return true;
         return false;
     }

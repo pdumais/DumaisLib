@@ -41,6 +41,7 @@ namespace Dumais
             std::string type;
             std::string resource;
             std::map<std::string, std::string> headers;
+            std::map<std::string,std::string> protocols;
         };
 
         class HTTPProtocolParser
@@ -48,13 +49,15 @@ namespace Dumais
         private:
             char data[MAX_HTTP_DATA];
             size_t dataIndex;
+
+            std::map<std::string,std::string> tokenize(char c, const std::string& subject);
         public:
             HTTPProtocolParser();
             ~HTTPProtocolParser();
 
             HTTPRequest parseIncoming(char* buffer, size_t size);
             std::string reject(int code, const std::string& response);
-            std::string switchProtocol(const std::string& key);
+            std::string switchProtocol(const std::string& key, const std::string& protocol);
 
         };
     }

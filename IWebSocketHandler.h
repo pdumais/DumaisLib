@@ -43,7 +43,9 @@ namespace Dumais
         class IWebSocketHandler
         {
         public:
-            virtual bool onWebSocketRequest(const std::string& request)=0;
+            virtual bool onWebSocketRequest(const std::string& request, 
+                std::map<std::string,std::string> protocols, 
+                std::string& chosenProtocol)=0;
             virtual void onNewConnection(WebSocket* ws)=0;
             virtual void onConnectionClosed(WebSocket* ws)=0;
             virtual void onMessage(WebSocket* ws, WebSocketMessage message)=0;

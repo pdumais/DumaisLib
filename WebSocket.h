@@ -24,6 +24,7 @@ SOFTWARE.
 #pragma once
 
 #include <queue>
+#include <map>
 #include <string>
 #include "MPSCRingBuffer.h"
 #include <sys/epoll.h>

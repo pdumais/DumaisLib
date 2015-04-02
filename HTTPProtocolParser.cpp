@@ -147,6 +147,11 @@ HTTPRequest HTTPProtocolParser::parseIncoming(char* buffer, size_t size)
         }
     }
 
+    if (req.headers.find("sec-websocket-protocol") != req.headers.end())
+    {
+        req.protocols = this->tokenize(',',req.headers["sec-websocket-protocol"]);
+    }
+
     this->dataIndex = 0;
     req.status = HTTPRequest::Ready;
     return req;
@@ -159,7 +164,7 @@ std::string HTTPProtocolParser::reject(int code, const std::string& response)
     return ss.str();
 }
 
-std::string HTTPProtocolParser::switchProtocol(const std::string& key)
+std::string HTTPProtocolParser::switchProtocol(const std::string& key, const std::string& protocol)
 {
     std::string accept = key+MAGIC;
 
@@ -168,8 +173,37 @@ std::string HTTPProtocolParser::switchProtocol(const std::string& key)
     accept = base64_encode(sha.getDigest(),20);
 
     std::stringstream ss;
-    ss << "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: " << accept << "\r\n\r\n";
+    ss << "HTTP/1.1 101 Switching Protocols\r\n";
+    ss << "Upgrade: websocket\r\n";
+    ss << "Connection: Upgrade\r\n";
+    ss << "Access-Control-Allow-Origin: *\r\n";
+    ss << "Sec-WebSocket-Accept: " << accept << "\r\n";
+    ss << "Sec-WebSocket-Protocol: " << protocol << "\r\n";
+    ss << "\r\n";
 
     return ss.str();
+}
+
+std::map<std::string,std::string> HTTPProtocolParser::tokenize(char c, const std::string& subject)
+{
+    const char* buf = subject.c_str();
+    std::map<std::string,std::string> list;
+    size_t index=0;
+    size_t lastToken = 0;
+    while (1)
+    {
+        if (buf[index]==c || buf[index]==0)
+        {
+            std::string str((char*)&buf[lastToken], index-lastToken);
+            str.erase(std::remove_if(str.begin(), str.end(),[](char x){
+                return std::isspace(x);
+            }), str.end());
+            list[str] = str;
+            lastToken = index+1;
+        }
+        if (buf[index]==0) break;
+        index++;
+    }
+    return list;
 }
 

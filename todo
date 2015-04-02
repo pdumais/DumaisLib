@@ -1,9 +1,2 @@
-- support Sec-WebSocket-Protocol
-     https://developer.mozilla.org/en-US/docs/WebSockets/Writing_WebSocket_servers (subprotocols)
-
-- client library
 - 100% RFC compliance
-    
-
-
 

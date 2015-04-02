@@ -59,12 +59,13 @@ void WebSocket::checkHTTPBuffer(char* buffer, size_t size)
 
     if (this->handler)
     {
+        std::string chosen;
         // notify the handler what request we received. If the handler is ready to serve this resource,
         // it will return true and we will then switch protocol.
-        if (this->handler->onWebSocketRequest(req.resource))
+        if (this->handler->onWebSocketRequest(req.resource, req.protocols, chosen))
         {
             if (req.headers.find("sec-websocket-key") == req.headers.end()) return; //TODO send unacceptable and disconnect
-            std::string str = this->httpParser.switchProtocol(req.headers["sec-websocket-key"]);
+            std::string str = this->httpParser.switchProtocol(req.headers["sec-websocket-key"],chosen);
             this->sendData(str.c_str(), str.size());
             this->protocol = Protocol::WebSocket;
             this->connectionState = WSState::Connected;
@@ -160,7 +161,7 @@ void WebSocket::processWholeWSPacket(char* buffer, size_t headerSize, size_t pay
 
 size_t WebSocket::getTxData(char** buf)
 {
-    if (this->connectionState != WSState::Connected) return 0;
+    if (this->protocol == Protocol::WebSocket && this->connectionState != WSState::Connected) return 0;
     SendBuffer sendBuffer;
     if (currentSendBuffer.buffer == 0 && txList->get(sendBuffer))
     {
