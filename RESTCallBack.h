@@ -3,12 +3,20 @@
 #include "JSON.h"
 #include "RESTParameters.h"
 
+enum class RESTMethod
+{
+    POST,
+    GET,
+    PUT,
+    DELETE
+};
+
 
 class IRESTCallBack
 {
 private:
 public:
-    virtual void call(Dumais::JSON::JSON& json, std::string& params)=0;
+    virtual void call(Dumais::JSON::JSON& json, const std::string& params, const std::string& data)=0;
     virtual void getDescription(Dumais::JSON::JSON& json) = 0;
 };
 
@@ -17,12 +25,12 @@ public:
 template <class T>
 class RESTCallBack: public IRESTCallBack{
 private:
-    void (T::*mpCallback)(Dumais::JSON::JSON&,RESTParameters* p);
+    void (T::*mpCallback)(Dumais::JSON::JSON&,RESTParameters* p, const std::string& data);
     T *mpObject;
     StringMap mParamList;
     std::string mDescription;
 public:
-    RESTCallBack(T *obj, void (T::*pCB)(Dumais::JSON::JSON&,RESTParameters*),std::string desc)
+    RESTCallBack(T *obj, void (T::*pCB)(Dumais::JSON::JSON&,RESTParameters*, const std::string& data),std::string desc)
     {
         mDescription = desc;
         mpObject = obj;
@@ -48,10 +56,10 @@ public:
         }
     }
 
-    void call(Dumais::JSON::JSON& json, std::string& paramString)
+    void call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data)
     {
         RESTParameters params(paramString,mParamList);
-        (mpObject->*mpCallback)(json,&params);
+        (mpObject->*mpCallback)(json,&params, data);
     }
 };
 

@@ -4,11 +4,11 @@
 class class1
 {
 public:
-    void c1(Dumais::JSON::JSON&,RESTParameters* p)
+    void c1(Dumais::JSON::JSON&,RESTParameters* p, const std::string& data)
     {
         printf("c1: p1=[%s], p2=[%s], p3=[%s], p4=[%s]\r\n",p->getParam("p1").c_str(),p->getParam("p2").c_str(),p->getParam("p3").c_str(),p->getParam("p4").c_str());
     }
-    void c2(Dumais::JSON::JSON&,RESTParameters* p)
+    void c2(Dumais::JSON::JSON&,RESTParameters* p, const std::string& data)
     {
         printf("c2: p1=[%s], p2=[%s], p3=[%s], p4=[%s]\r\n",p->getParam("p1").c_str(),p->getParam("p2").c_str(),p->getParam("p3").c_str(),p->getParam("p4").c_str());
     }
@@ -29,12 +29,14 @@ int main(int argc, char**argv)
     pc2->addParam("p3","p3 description");
     pc2->addParam("p4","p4 description");
 
-    engine.addCallBack("/test1/blah",pc1);
-    engine.addCallBack("/test2/blah2",pc2);
+    engine.addCallBack("/test1/blah",RESTMethod::GET,pc1);
+    engine.addCallBack("/test2/blah2",RESTMethod::GET,pc2);
+    engine.addCallBack("/test2/blah2",RESTMethod::DELETE,pc2);
 
     Dumais::JSON::JSON j;
-    engine.invoke(j,"/test1/blah?p1=test1 ");
-    engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4");
+    engine.invoke(j,"/test1/blah?p1=test1 ","GET","");
+    engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4","GET","");
+    engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4","DELETE","");
 
     Dumais::JSON::JSON json;
     engine.documentInterface(json);
