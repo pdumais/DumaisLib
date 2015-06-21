@@ -5,7 +5,7 @@ SOURCESCPP = RESTEngine.cpp RESTCallBack.cpp RESTParameters.cpp
 SOURCESTEST = main.cpp
 OBJECTS=$(SOURCESCPP:.cpp=.o)
 OBJECTSTEST=$(SOURCESTEST:.cpp=.o)
-CFLAGS=-I json/ -g -std=c++0x
+CFLAGS=-I json/ -g -std=c++11
 LDFLAGS=
 STATICMODULES= RESTEngine.a
 

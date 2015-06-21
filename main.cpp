@@ -22,16 +22,19 @@ int main(int argc, char**argv)
     RESTEngine engine;
     class1* p = new class1();
 
-    RESTCallBack<class1> *pc1 = new RESTCallBack<class1>(p,&class1::c1,"d1");
-    RESTCallBack<class1> *pc2 = new RESTCallBack<class1>(p,&class1::c2,"d2");
+    RESTCallBack *pc1 = new RESTCallBack(p,&class1::c1,"d1");
+    RESTCallBack *pc2 = new RESTCallBack(p,&class1::c2,"d2");
+    RESTCallBack *pc3 = new RESTCallBack(p,&class1::c2,"d2");
     pc1->addParam("p1","p1 description");
     pc1->addParam("p2","p1 description");
     pc2->addParam("p3","p3 description");
     pc2->addParam("p4","p4 description");
+    pc3->addParam("p3","p3 description");
+    pc3->addParam("p4","p4 description");
 
     engine.addCallBack("/test1/blah",RESTMethod::GET,pc1);
     engine.addCallBack("/test2/blah2",RESTMethod::GET,pc2);
-    engine.addCallBack("/test2/blah2",RESTMethod::DELETE,pc2);
+    engine.addCallBack("/test2/blah2",RESTMethod::DELETE,pc3);
 
     Dumais::JSON::JSON j;
     engine.invoke(j,"/test1/blah?p1=test1 ","GET","");
@@ -42,5 +45,8 @@ int main(int argc, char**argv)
     engine.documentInterface(json);
     printf("%s\r\n",json.stringify(true).c_str());
 
+    engine.removeCallBack(pc1);
+    engine.removeCallBack(pc2);
+    engine.removeCallBack(pc3);
     return 0;
 }

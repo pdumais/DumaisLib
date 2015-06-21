@@ -5,10 +5,10 @@
 
 class RESTEngine{
 private:
-    std::unordered_map<std::string,IRESTCallBack*> mPOSTCallBackList;    
-    std::unordered_map<std::string,IRESTCallBack*> mGETCallBackList;    
-    std::unordered_map<std::string,IRESTCallBack*> mPUTCallBackList;    
-    std::unordered_map<std::string,IRESTCallBack*> mDELETECallBackList;    
+    std::unordered_map<std::string,RESTCallBack*> mPOSTCallBackList;    
+    std::unordered_map<std::string,RESTCallBack*> mGETCallBackList;    
+    std::unordered_map<std::string,RESTCallBack*> mPUTCallBackList;    
+    std::unordered_map<std::string,RESTCallBack*> mDELETECallBackList;    
 public:
     enum ResponseCode
     {
@@ -20,8 +20,8 @@ public:
 	RESTEngine();
 	~RESTEngine();
 
-    void addCallBack(std::string url, RESTMethod method, IRESTCallBack* p);
-    void removeCallBack(IRESTCallBack* p);
+    void addCallBack(std::string url, RESTMethod method, RESTCallBack* p);
+    void removeCallBack(RESTCallBack* p);
     ResponseCode invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data);
     
     void documentInterface(Dumais::JSON::JSON& j);

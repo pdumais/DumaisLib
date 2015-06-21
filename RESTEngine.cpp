@@ -14,7 +14,7 @@ RESTEngine::~RESTEngine()
     for (auto& it : mDELETECallBackList) delete it.second;
 }
 
-void RESTEngine::addCallBack(std::string url, RESTMethod method, IRESTCallBack* p)
+void RESTEngine::addCallBack(std::string url, RESTMethod method, RESTCallBack* p)
 {
     switch (method)
     {
@@ -25,12 +25,13 @@ void RESTEngine::addCallBack(std::string url, RESTMethod method, IRESTCallBack* 
     }
 }
 
-void RESTEngine::removeCallBack(IRESTCallBack* p)
+void RESTEngine::removeCallBack(RESTCallBack* p)
 {
-    for (auto it=mPOSTCallBackList.begin();it!=mPOSTCallBackList.end();it++) if (it->second == p) {mPOSTCallBackList.erase(it); return;}
-    for (auto it=mGETCallBackList.begin();it!=mGETCallBackList.end();it++) if (it->second == p) {mGETCallBackList.erase(it); return;}
-    for (auto it=mPUTCallBackList.begin();it!=mPUTCallBackList.end();it++) if (it->second == p) {mPUTCallBackList.erase(it); return;}
-    for (auto it=mDELETECallBackList.begin();it!=mDELETECallBackList.end();it++) if (it->second == p) {mDELETECallBackList.erase(it); return;}
+    for (auto it=mPOSTCallBackList.begin();it!=mPOSTCallBackList.end();it++) if (it->second == p) {mPOSTCallBackList.erase(it);}
+    for (auto it=mGETCallBackList.begin();it!=mGETCallBackList.end();it++) if (it->second == p) {mGETCallBackList.erase(it);}
+    for (auto it=mPUTCallBackList.begin();it!=mPUTCallBackList.end();it++) if (it->second == p) {mPUTCallBackList.erase(it);}
+    for (auto it=mDELETECallBackList.begin();it!=mDELETECallBackList.end();it++) if (it->second == p) {mDELETECallBackList.erase(it);}
+    delete p;
 }
 
 RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data)
