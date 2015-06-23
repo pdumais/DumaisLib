@@ -240,7 +240,10 @@ bool WebSocketServer::processAccept()
         int flags = fcntl(socket,F_GETFL,0);
         fcntl(socket, F_SETFL, flags | O_NONBLOCK);
 
-        this->webSockets[socket] = new WebSocket(this->webSocketHandler);
+        this->webSockets[socket] = new WebSocket(this->mOnWebSocketRequest, 
+                                                 this->mOnNewConnection, 
+                                                 this->mOnConnectionClosed,
+                                                 this->mOnMessage);
         addFdToEpoll(socket);
         LOG("Accepted new connection (total of "<< this->webSockets.size() << ")\r\n");
     }
@@ -257,9 +260,25 @@ void WebSocketServer::addFdToEpoll(int fd)
     epoll_ctl(this->epollFD, EPOLL_CTL_ADD, fd, &ev);
 }
 
-void WebSocketServer::setWebSocketHandler(IWebSocketHandler* handler)
+void WebSocketServer::setOnWebSocketRequest(std::function<bool(const std::string& request,
+    std::map<std::string,std::string> protocols,
+    std::string& chosenProtocol)> handler)
 {
-    this->webSocketHandler = handler;
+    this->mOnWebSocketRequest = handler;
 }
 
+void WebSocketServer::setOnNewConnection(std::function<void(WebSocket*)> handler)
+{
+    this->mOnNewConnection = handler;
+}
+
+void WebSocketServer::setOnConnectionClosed(std::function<void(WebSocket*)> handler)
+{
+    this->mOnConnectionClosed = handler;
+}
+
+void WebSocketServer::setOnMessage(std::function<void(WebSocket*,WebSocketMessage message)> handler)
+{
+    this->mOnMessage = handler;
+}
 

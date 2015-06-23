@@ -23,10 +23,11 @@ SOFTWARE.
 */
 #pragma once
 
-#include "IWebSocketHandler.h"
 #include <unordered_map>
 #include <list>
 #include "Logging.h"
+#include <functional>
+#include "WebSocket.h"
 
 namespace Dumais
 {
@@ -49,7 +50,13 @@ namespace Dumais
             int listenSocket;
             int epollFD;
             struct epoll_event *epollEvents;
-            IWebSocketHandler* webSocketHandler;
+
+            std::function<bool(const std::string& request,
+                std::map<std::string,std::string> protocols,
+                std::string& chosenProtocol)> mOnWebSocketRequest;
+            std::function<void(WebSocket*)> mOnNewConnection;
+            std::function<void(WebSocket*)> mOnConnectionClosed;
+            std::function<void(WebSocket*,WebSocketMessage message)> mOnMessage;
 
         public:
             WebSocketServer(int port, int maxConnections, Dumais::WebSocket::ILogger* logger);    
@@ -57,8 +64,12 @@ namespace Dumais
 
             // reactor function
             bool work(int waitTimeout);
-            
-            void setWebSocketHandler(IWebSocketHandler* handler);
+            void setOnWebSocketRequest(std::function<bool(const std::string& request,
+                std::map<std::string,std::string> protocols,
+                std::string& chosenProtocol)> handler);
+            void setOnNewConnection(std::function<void(WebSocket*)> handler);
+            void setOnConnectionClosed(std::function<void(WebSocket*)> handler);
+            void setOnMessage(std::function<void(WebSocket*,WebSocketMessage message)> handler);
         };
     }
 }

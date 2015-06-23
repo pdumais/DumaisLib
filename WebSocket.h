@@ -30,12 +30,19 @@ SOFTWARE.
 #include <sys/epoll.h>
 #include "HTTPProtocolParser.h"
 #include "WSProtocolParser.h"
+#include <functional>
 
 namespace Dumais
 {
     namespace WebSocket
     {
-        class IWebSocketHandler;
+        struct WebSocketMessage
+        {
+            unsigned char* buffer;
+            size_t size;
+            unsigned char type;
+            bool fin;
+        };
 
         enum class Protocol
         {
@@ -54,7 +61,13 @@ namespace Dumais
         {
         private:
             Protocol protocol;
-            IWebSocketHandler* handler;
+            std::function<bool(const std::string& request,
+                std::map<std::string,std::string> protocols,
+                std::string& chosenProtocol)> mOnWebSocketRequest;
+            std::function<void(WebSocket*)> mOnNewConnection;
+            std::function<void(WebSocket*)> mOnConnectionClosed;
+            std::function<void(WebSocket*,WebSocketMessage message)> mOnMessage;
+
             time_t closingTimeStamp;
             WSState connectionState;
             HTTPProtocolParser httpParser;
@@ -78,7 +91,12 @@ namespace Dumais
             void processWholeWSPacket(char* buffer, size_t headerSize, size_t payloadSize);
 
         public:
-            WebSocket(IWebSocketHandler* handler);
+            WebSocket(std::function<bool(const std::string& request,
+                                         std::map<std::string,std::string> protocols,
+                                         std::string& chosenProtocol)>,
+                      std::function<void(WebSocket*)> handler1, 
+                      std::function<void(WebSocket*)> handler2, 
+                      std::function<void(WebSocket*,WebSocketMessage message)> handler3);
             ~WebSocket();
 
             bool processData(char* data, size_t size);

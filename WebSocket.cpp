@@ -25,7 +25,6 @@ SOFTWARE.
 #include "WebSocket.h"
 #include <string.h>
 #include <sstream>
-#include "IWebSocketHandler.h"
 #include <functional>
 #include <algorithm>
 
@@ -34,9 +33,17 @@ SOFTWARE.
 
 using namespace Dumais::WebSocket;
 
-WebSocket::WebSocket(IWebSocketHandler* h)
+WebSocket::WebSocket(std::function<bool(const std::string& request,
+                                         std::map<std::string,std::string> protocols,
+                                         std::string& chosenProtocol)> handler,
+                     std::function<void(WebSocket*)> handler1, 
+                     std::function<void(WebSocket*)> handler2, 
+                     std::function<void(WebSocket*,WebSocketMessage message)> handler3)
 {
-    this->handler = h;
+    this->mOnWebSocketRequest = handler;
+    this->mOnNewConnection = handler1;
+    this->mOnConnectionClosed = handler2;
+    this->mOnMessage = handler3;
     this->protocol = Protocol::HTTP;
     this->currentSendBuffer.buffer = 0;
     this->txList = new MPSCRingBuffer<SendBuffer>(1000);
@@ -44,7 +51,7 @@ WebSocket::WebSocket(IWebSocketHandler* h)
 
 WebSocket::~WebSocket()
 {
-    if (this->handler) this->handler->onConnectionClosed(this);
+    if (this->mOnConnectionClosed) this->mOnConnectionClosed(this);
     LOG("WebSocket closed\r\n");
 }
 
@@ -57,19 +64,19 @@ void WebSocket::checkHTTPBuffer(char* buffer, size_t size)
     if (req.status == HTTPRequest::Error) return; //TODO: should disconnect
     if (req.type != "GET") return; //TODO: send unacceptable and disconnect
 
-    if (this->handler)
+    if (this->mOnWebSocketRequest)
     {
         std::string chosen;
         // notify the handler what request we received. If the handler is ready to serve this resource,
         // it will return true and we will then switch protocol.
-        if (this->handler->onWebSocketRequest(req.resource, req.protocols, chosen))
+        if (this->mOnWebSocketRequest(req.resource, req.protocols, chosen))
         {
             if (req.headers.find("sec-websocket-key") == req.headers.end()) return; //TODO send unacceptable and disconnect
             std::string str = this->httpParser.switchProtocol(req.headers["sec-websocket-key"],chosen);
             this->sendData(str.c_str(), str.size());
             this->protocol = Protocol::WebSocket;
             this->connectionState = WSState::Connected;
-            if (this->handler) this->handler->onNewConnection(this);
+            if (this->mOnNewConnection) this->mOnNewConnection(this);
             return;
         }
     }
@@ -128,7 +135,7 @@ void WebSocket::processWholeWSPacket(char* buffer, size_t headerSize, size_t pay
         msg.size = payloadSize;
         msg.type = header->opcode;
         msg.fin = header->fin;
-        if (this->handler) this->handler->onMessage(this, msg); 
+        if (this->mOnMessage) this->mOnMessage(this, msg); 
     }
     else if (header->opcode == WS_CLOSE)
     {
@@ -247,7 +254,6 @@ bool WebSocket::watchdog()
     }
     return true;
 }
-
 
 void WebSocket::sendText(const std::string& text)
 {
