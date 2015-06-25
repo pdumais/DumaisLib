@@ -21,9 +21,15 @@ void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
     }
 }
 
-void RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data)
+void RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
 {
     RESTParameters params(paramString,mParamList);
-    if (mCallback) mCallback(json,&params, data);
+    RESTContext context ={
+        json,
+        &params,
+        dataString,
+        matches
+    };
+    if (mCallback) mCallback(context);
 }
 

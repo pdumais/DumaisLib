@@ -2,13 +2,22 @@
 #define RESTENGINE_H
 
 #include "RESTCallBack.h"
+#include <regex>
+#include <list>
+
+struct ResourceIdentifier
+{
+    std::string uri;
+    std::regex regex;
+    RESTCallBack* mpCallback;
+};
 
 class RESTEngine{
 private:
-    std::unordered_map<std::string,RESTCallBack*> mPOSTCallBackList;    
-    std::unordered_map<std::string,RESTCallBack*> mGETCallBackList;    
-    std::unordered_map<std::string,RESTCallBack*> mPUTCallBackList;    
-    std::unordered_map<std::string,RESTCallBack*> mDELETECallBackList;    
+    std::list<ResourceIdentifier> mPOSTCallBackList;    
+    std::list<ResourceIdentifier> mGETCallBackList;    
+    std::list<ResourceIdentifier> mPUTCallBackList;    
+    std::list<ResourceIdentifier> mDELETECallBackList;    
 public:
     enum ResponseCode
     {
