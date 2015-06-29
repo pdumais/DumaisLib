@@ -216,11 +216,6 @@ std::string Value::escapeString(const std::string& st)
         char c = buf[i];
         switch (c)
         {
-            case '\'':
-            {
-                ret+="\\\'";
-            }
-            break;
             case '\"':
             {
                 ret+="\\\"";
