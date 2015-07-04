@@ -8,6 +8,10 @@ The server is single threaded and uses epoll internally. The server will spawn a
 will handle all the job. Sending data to clients can be done from another thread since the internal
 message queue is thread safe.
 
+Compiling
+==============
+Makefile will generate a webserver.a static library to you can link your projects with.
+
 Usage
 ==============
 All you need to do is implement the IWebServerListener interface
@@ -17,6 +21,8 @@ class HTTPTest: public IWebServerListener
 public:
     virtual HTTPResponse* processHTTPRequest(HTTPRequest* request)
     {
+        cout << request->getURL();
+        cout << request->getMethod();
         return HTTPProtocol::buildBufferedResponse(HTTPResponseCode::OK,"Some data","text/plain");
     }
 
@@ -46,3 +52,20 @@ web.start();
 web.stop();
 
 ```
+
+if you require auth (digest auth supported only), then create a file and put
+some username:password pairs (separated by colons) then reference the file like this:
+```
+web.requireAuth("/path/to/passwdfile",30 /*Session expiry delay*/);  
+```
+
+That would force the client to you digest authentication. Then a session will be created
+and the session ID will be sent in a cookie in the response. To avoid authenticating again, 
+the client should pass the session ID in the cookies on every request. The session will stay
+valid for the period of time set as the 3rd parameter of requireAuth().
+
+
+Security
+==============
+Don't count on it. I am planning on adding ssl support eventually but I don't feel the need for that
+right away and I don't want to add a dependency to openssl right now.
