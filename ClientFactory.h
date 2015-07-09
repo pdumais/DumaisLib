@@ -1,5 +1,7 @@
 #pragma once
 #include "TcpClient.h"
+#include "ISocket.h"
+
 
 namespace Dumais{
 namespace WebServer{
@@ -7,7 +9,7 @@ namespace WebServer{
 class IClientFactory
 {
 public:
-    virtual TcpClient* create() = 0;
+    virtual TcpClient* create(ISocket *sock) = 0;
 };
 
 
@@ -20,10 +22,11 @@ public:
         this->observer = obs;
     }
 
-    TcpClient* create()
+    TcpClient* create(ISocket* sock)
     {
         TcpClient *c = new TcpClient(new TContext(), &framingStrategy);
         c->setObserver(observer);
+        c->mSocket = sock;
         return c;
     }
 

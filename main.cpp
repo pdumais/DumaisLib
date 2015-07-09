@@ -61,6 +61,7 @@ long query(std::string url, bool auth=false)
     CURL *curl = curl_easy_init();
     curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
     if (auth)
     {
         curl_easy_setopt(curl, CURLOPT_HTTPAUTH, (long)CURLAUTH_ANY);
@@ -81,6 +82,7 @@ long post(std::string url)
     curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
     curl_easy_setopt(curl,CURLOPT_POSTFIELDS,"test=1&test2=2");
     curl_easy_setopt(curl, CURLOPT_COOKIE, "meow=cat; woof=dog;");
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
     CURLcode code = curl_easy_perform(curl);
     curl_easy_cleanup(curl);
@@ -122,13 +124,29 @@ int main(int argc, char** argv)
 {
     Test test;
     char rcv[1024];
+    bool started;
+    std::string ret;
     
+#ifdef USING_OPENSSL
+    WebServer webs(5556,"0.0.0.0",10);
+    webs.setListener(&test);
+    started = webs.startSecure("cert.crt","key.key");
+    ASSERT(started);
+    if (!started) return -1;
+
+    // test ssl
+    ASSERT(query("https://127.0.0.1:5556/test/123")==200);
+    if (curlbuf !=0) ret = curlbuf;
+    ASSERT(ret == "/test/123");
+    webs.stop();
+#endif
 
     WebServer web(5555,"0.0.0.0",100);
     web.setListener(&test);
-    web.start();
+    started = web.start();
+    ASSERT(started);
+    if (!started) return -1;
 
-    std::string ret;
 
     // test post
     ASSERT(post("http://127.0.0.1:5555/test")==200);

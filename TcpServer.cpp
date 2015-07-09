@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include "PlainSocket.h"
+#include "SecureSocket.h"
 
 using namespace Dumais::WebServer;
 
@@ -20,30 +22,51 @@ TcpServer::TcpServer(IClientFactory* factory, int port, std::string bindAddr, in
     this->listeningPort = port;
     this->bindAddress = bindAddr;
     this->maxConnections = max;
+    this->listenSocket = 0;
 }
     
 TcpServer::~TcpServer()
 {
+    if (this->listenSocket != 0) delete this->listenSocket;
+}
+
+bool TcpServer::setSecurity(char* certificatePath, char* privateKeyPath)
+{
+    if (!SECURE_IMPLEMENTATION) return false;
+    this->privateKeyPath = privateKeyPath;
+    this->certificatePath = certificatePath;
+    return true;
 }
 
 bool TcpServer::start()
 {
     // create listening socket
-    this->listenSocket = socket(AF_INET,SOCK_STREAM,0);
-    int flags = fcntl(this->listenSocket,F_GETFL,0);
-    fcntl(this->listenSocket, F_SETFL, flags | O_NONBLOCK);
+    int s = socket(AF_INET,SOCK_STREAM,0);
+    int flags = fcntl(s,F_GETFL,0);
+    fcntl(s, F_SETFL, flags | O_NONBLOCK);
     sockaddr_in sockadd;
     sockadd.sin_family=AF_INET;
     sockadd.sin_addr.s_addr=inet_addr(this->bindAddress.c_str());
     sockadd.sin_port=htons(this->listeningPort);
     char r = 1;
-    setsockopt(this->listenSocket,SOL_SOCKET,SO_REUSEADDR,&r,sizeof(r));
-    if (bind(this->listenSocket,(struct sockaddr *)&sockadd,sizeof(sockadd))<0) return false;
-    listen(this->listenSocket,this->maxConnections);
+    setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&r,sizeof(r));
+    if (bind(s,(struct sockaddr *)&sockadd,sizeof(sockadd))<0) return false;
+    listen(s,this->maxConnections);
 
     // create control pipe
     this->controlEventFd = eventfd(0,EFD_NONBLOCK);
     if (this->controlEventFd == -1) return false;
+
+    if (this->privateKeyPath=="")
+    {
+        this->listenSocket = new PlainSocket(s);
+    }
+    else
+    {
+        SecureSocket *ss = new SecureSocket(s);
+        ss->initServer(this->certificatePath, this->privateKeyPath);
+        this->listenSocket = ss;
+    }
 
     // start thre reactor thread
     this->stopping = false;
@@ -65,7 +88,7 @@ void TcpServer::run()
     int efd = epoll_create1(0);
     struct epoll_event *events;
 
-    addFdToEpoll(efd, this->listenSocket);
+    addFdToEpoll(efd, this->listenSocket->getSocket());
     addFdToEpoll(efd, this->controlEventFd);
     events = new epoll_event[this->maxConnections + 2];
 
@@ -76,9 +99,12 @@ void TcpServer::run()
         n = epoll_wait(efd, events, this->maxConnections + 2, -1);
         for (int i = 0; i < n; i++)
         {
-            if (events[i].data.fd == this->listenSocket)
+            if (events[i].data.fd == this->listenSocket->getSocket())
             {
-                if (!this->processAccept(efd)) abort();
+                if (!this->processAccept(efd))
+                {
+                    abort();
+                }
             }
             else if (events[i].data.fd == this->controlEventFd)
             {
@@ -103,9 +129,9 @@ void TcpServer::run()
         close(it->first);
         delete it->second;
     }
-
+printf("EXIT\r\n");
     // cleanup
-    close(this->listenSocket);
+    this->listenSocket->close();
     close(this->controlEventFd);
     close(efd);
     delete[] events;
@@ -137,8 +163,8 @@ bool TcpServer::processAccept(int efd)
     int socket;
     while (true)
     {
-        socket = accept(this->listenSocket,0,0);
-        if (socket == -1)
+        ISocket *sock = this->listenSocket->accept();
+        if (sock == 0)
         {
             if (errno == EAGAIN)
             {
@@ -149,9 +175,10 @@ bool TcpServer::processAccept(int efd)
                 return false;
             }
         }
+        socket = sock->getSocket();
         int flags = fcntl(socket,F_GETFL,0);
         fcntl(socket, F_SETFL, flags | O_NONBLOCK);
-        TcpClient* client = this->clientFactory->create();
+        TcpClient* client = this->clientFactory->create(sock);
         clientList[socket] = client;
         client->setControlEventFd(this->controlEventFd);
         client->onConnected();
@@ -165,6 +192,8 @@ int TcpServer::processReceive(int socket)
     auto it = clientList.find(socket);
     if (it == clientList.end()) return 0;
     
+    TcpClient* client = it->second;
+
     char tmpBuffer[1024];  //TODO: should get a buffer from a buffer pool
     size_t n = 1;
     while (n > 0)
@@ -174,28 +203,32 @@ int TcpServer::processReceive(int socket)
             n = 0;
             break;
         }
-        n = recv(socket, &tmpBuffer, 1024, 0);
+        n = client->getSocket()->read((char*)&tmpBuffer[0], 1024);
+
         if (n == 0)
         {
-            it->second->onDisconnected();
+            client->onDisconnected();
             clientList.erase(it);
-            delete it->second;
+            delete client;
         }
         else if (n == -1)
         {
             n = 0;
             if (errno == ECONNRESET)
             {
-                it->second->onDisconnected();
+                client->onDisconnected();
                 clientList.erase(it);
-                delete it->second;
+                delete client;
             }
-            else if (errno != EAGAIN) abort();
+            else 
+            {
+                if (errno != EAGAIN) abort();
+            }
             break;
         }
         else
         {
-            !it->second->onReceive((char*)&tmpBuffer[0], n);            
+            client->onReceive((char*)&tmpBuffer[0], n);            
         }
     }
     
@@ -213,9 +246,10 @@ int TcpServer::processSend()
     //      Data is ready to be sent.
     for (auto it = clientList.begin(); it != clientList.end(); it++)
     {
-        while ((size = it->second->getTxData(&buffer)) > 0)
+        TcpClient* client = it->second;
+        while ((size = client->getTxData(&buffer)) > 0)
         {
-            sent = send(it->first,buffer, size, 0);    
+            sent = client->getSocket()->send(buffer, size);    
             if (sent == -1)
             {
                 if (errno != EAGAIN) abort();
@@ -223,7 +257,7 @@ int TcpServer::processSend()
             }
             else if (sent == 0)
             {
-                it->second->onDisconnected();
+                client->onDisconnected();
                 clientList.erase(it);
                 delete it->second;
                 break;
@@ -231,16 +265,16 @@ int TcpServer::processSend()
             else
             {
                 // this will move us to the next buffer or further in current if partially sent.
-                it->second->onDataSent(sent);
+                client->onDataSent(sent);
             }
         }
 
         // after we are finished sending the tx queue, check if the client is failed and close the connection
-        if (it->second->mFailed)
+        if (client->mFailed)
         {
-            close(it->first);
-            it->second->onDisconnected();
-            delete it->second;
+            client->getSocket()->close();
+            client->onDisconnected();
+            delete client;
             clientList.erase(it);
         }
     }
