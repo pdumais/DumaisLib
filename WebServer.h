@@ -54,6 +54,7 @@ public:
     void setListener(IWebServerListener* pListener);
     void requireAuth(const char* authFileName,unsigned int sessionExpiry);
 
+    bool startSecure(char* certificatePath, char* privateKeyPath);
     bool start();
     void stop();
 

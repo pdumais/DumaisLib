@@ -2,6 +2,7 @@
 #include "ClientFactory.h"
 #include <map>
 #include <thread>
+#include "ISocket.h"
 
 namespace Dumais{
 namespace WebServer{
@@ -12,20 +13,23 @@ public:
     ~TcpServer();    
 
     bool start();
+    bool setSecurity(char* certificatePath, char* privateKeyPath);
     void run();
     void stop();
 
 private:
     IClientFactory* clientFactory;
     int listeningPort;
-    int listenSocket;
+    ISocket* listenSocket;
     int controlEventFd;
     int maxConnections;
     volatile bool stopping;
     std::map<int,TcpClient*> clientList;
     std::thread *reactorThread;
     std::string bindAddress;
-    
+    std::string certificatePath;    
+    std::string privateKeyPath;    
+
 
     bool processAccept(int efd);
     int processReceive(int socket);

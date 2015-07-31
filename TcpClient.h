@@ -5,6 +5,7 @@
 #include "ITcpClientContext.h"
 #include "IFramingStrategy.h"
 #include "MPSCRingBuffer.h"
+#include "ISocket.h"
 
 namespace Dumais{
 namespace WebServer{
@@ -19,11 +20,14 @@ class TcpClient
 public:
     ~TcpClient();
     void sendData(char* buffer, size_t size, bool copyInNewBuffer);
+    ISocket* getSocket();
 
 private:
     friend class TcpServer;
     template <class T, class T2>
     friend class ClientFactory;
+
+    ISocket *mSocket;
 
     TcpClient(ITcpClientContext* context, IFramingStrategy *framingStrategy);
     void setObserver(TcpClientObserver* obs);

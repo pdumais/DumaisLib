@@ -22,6 +22,7 @@ TcpClient::TcpClient(ITcpClientContext* ctx, IFramingStrategy* fs)
     this->currentMessage.size = 0;
     this->currentMessage.currentIndex = 0;
     this->txList = new MPSCRingBuffer<SendBuffer>(MAX_INTERNAL_TX_COUNT);
+    this->mSocket = 0;
 }
 
 TcpClient::~TcpClient()
@@ -33,6 +34,12 @@ TcpClient::~TcpClient()
     }
     delete this->txList;
     if (this->context != 0)  delete this->context;
+    if (this->mSocket) delete this->mSocket;
+}
+
+ISocket* TcpClient::getSocket()
+{
+    return this->mSocket;
 }
 
 void TcpClient::setObserver(TcpClientObserver* obs)

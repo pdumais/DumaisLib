@@ -13,6 +13,7 @@ public:
     ~TcpEngine();
 
     void init(int port, std::string bindAddr, int maxConnections);
+    bool startSecure(char* certificatePath, char* privateKeyPath);
     bool start();
     void stop();
 

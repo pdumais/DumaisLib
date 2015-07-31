@@ -130,6 +130,11 @@ bool WebServer::start()
     return TcpEngine::start();
 }
 
+bool WebServer::startSecure(char* cPath, char* pPath)
+{
+    return TcpEngine::startSecure(cPath, pPath);
+}
+
 void WebServer::stop()
 {
     //TODO: should disconnect all clients

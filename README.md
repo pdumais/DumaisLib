@@ -67,5 +67,18 @@ valid for the period of time set as the 3rd parameter of requireAuth().
 
 Security
 ==============
-Don't count on it. I am planning on adding ssl support eventually but I don't feel the need for that
-right away and I don't want to add a dependency to openssl right now.
+You can build with TLS support with "make tls". This build will require the OpenSSL library.
+You executable, that links with this static lib, will also need to link with libcrypto and libssl.
+To use TLS, simply replace
+```
+web.start();
+```
+with
+```
+web.startSecure("/path/to/PublicKey","/path/to/PrivateKey");
+```
+
+If you attempt to call startSecure with a version of the library that wasn't compiled with TLS support, the call
+will return false.
+
+
