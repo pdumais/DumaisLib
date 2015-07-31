@@ -1,5 +1,5 @@
 all: tests
-EXCEPTIONS=main.cpp
+EXCEPTIONS=./main.cpp
 SOURCES=$(filter-out $(EXCEPTIONS),$(wildcard ./*.cpp))
 OBJECTS=$(SOURCES:.cpp=.o)
 
