@@ -3,12 +3,3 @@ memory leak in Object, when crushing a value
 allow apostrophe not to be escaped when parsing, and do not escape it with stringify
 
 
-no need for unicode because we support utf8:
-   JSON text SHALL be encoded in UTF-8, UTF-16, or UTF-32.  The default
-   encoding is UTF-8, and JSON texts that are encoded in UTF-8 are
-   interoperable in the sense that they will be read successfully by the
-   maximum number of implementations; there are many implementations
-   that cannot successfully read texts in other encodings (such as
-   UTF-16 and UTF-32).
-
-

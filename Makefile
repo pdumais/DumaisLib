@@ -4,6 +4,8 @@ SOURCES=$(OBJECTS:.o=.cpp)
 
 clean:
 	-rm *.o
+	-rm a.out
+	-rm *.a
 
 .cpp.o:
 	$(CXX) -g -std=c++11 -c $< -o $@
