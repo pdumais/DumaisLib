@@ -6,7 +6,8 @@ RESTParameters::RESTParameters(std::string params, StringMap registeredParams)
     std::string value;
     bool keyFlag = true;
     int n=0;
-    while (params[n]!=' ' && n<params.size())
+    // test first if n is legal before reading params to avoid crash on MSVC
+    while (n<params.size() && params[n]!=' ')
     {
         if (params[n]=='=')
         {
@@ -32,11 +33,12 @@ RESTParameters::RESTParameters(std::string params, StringMap registeredParams)
         }
 
         n++;
-        if (params[n]==' ' || params[n]=='\r' || params[n]=='\n' || n==params.size())
+        if (n==params.size() || params[n]==' ' || params[n]=='\r' || params[n]=='\n')
         {
             if (registeredParams.find(key)!=registeredParams.end()) mParameters[key]=value;
             key="";
             value="";
+            break;
         }
     }
 }
