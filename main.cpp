@@ -42,10 +42,10 @@ int main(int argc, char**argv)
     pc3->addParam("p3","p3 description");
     pc3->addParam("p4","p4 description");
 
-    engine.addCallBack("/test1/blah",RESTMethod::GET,pc1);
-    engine.addCallBack("/test2/blah2",RESTMethod::GET,pc2);
-    engine.addCallBack("/test2/t.*",RESTMethod::DELETE,pc3);
-    engine.addCallBack("/test3/([a-z0-9]*)",RESTMethod::POST,pc4);
+    engine.addCallBack("/test1/blah","get",pc1);
+    engine.addCallBack("/test2/blah2","GET",pc2);
+    engine.addCallBack("/test2/t.*","DELETE",pc3);
+    engine.addCallBack("/test3/([a-z0-9]*)","POST",pc4);
 
     Dumais::JSON::JSON j;
     engine.invoke(j,"/test1/blah?p1=test1 ","GET","");

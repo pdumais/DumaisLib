@@ -4,6 +4,7 @@
 #include "RESTCallBack.h"
 #include <regex>
 #include <list>
+#include <map>
 
 struct ResourceIdentifier
 {
@@ -12,12 +13,14 @@ struct ResourceIdentifier
     RESTCallBack* mpCallback;
 };
 
+typedef std::list<ResourceIdentifier> CallbackList;
+typedef std::map<std::string, CallbackList> CallbackMap;
+
+
 class RESTEngine{
 private:
-    std::list<ResourceIdentifier> mPOSTCallBackList;    
-    std::list<ResourceIdentifier> mGETCallBackList;    
-    std::list<ResourceIdentifier> mPUTCallBackList;    
-    std::list<ResourceIdentifier> mDELETECallBackList;    
+    CallbackMap mCallbacks;    
+
 public:
     enum ResponseCode
     {
@@ -29,7 +32,7 @@ public:
 	RESTEngine();
 	~RESTEngine();
 
-    void addCallBack(std::string url, RESTMethod method, RESTCallBack* p);
+    void addCallBack(std::string url, std::string method, RESTCallBack* p);
     void removeCallBack(RESTCallBack* p);
     ResponseCode invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data);
     

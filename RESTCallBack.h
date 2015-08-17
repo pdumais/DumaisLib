@@ -5,15 +5,6 @@
 #include <functional>
 #include <regex>
 
-//enum class RESTMethod : "enum class" not supported by MSVC2010
-enum RESTMethod
-{
-    POST,
-    GET,
-    PUT,
-    DELETE
-};
-
 struct RESTContext
 {
     Dumais::JSON::JSON& returnData;

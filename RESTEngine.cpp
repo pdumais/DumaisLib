@@ -9,67 +9,49 @@ RESTEngine::RESTEngine(){
 
 RESTEngine::~RESTEngine()
 {
-    for (std::list<ResourceIdentifier>::iterator it = mPOSTCallBackList.begin(); it != mPOSTCallBackList.end(); ++it) delete it->mpCallback;
-    for (std::list<ResourceIdentifier>::iterator it = mGETCallBackList.begin(); it != mGETCallBackList.end(); ++it) delete it->mpCallback;
-    for (std::list<ResourceIdentifier>::iterator it = mPUTCallBackList.begin(); it != mPUTCallBackList.end(); ++it) delete it->mpCallback;
-    for (std::list<ResourceIdentifier>::iterator it = mDELETECallBackList.begin(); it != mDELETECallBackList.end(); ++it) delete it->mpCallback;
+    for (CallbackMap::iterator it = mCallbacks.begin(); it != mCallbacks.end(); it++)
+    {    
+        for (std::list<ResourceIdentifier>::iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+        {
+            delete it2->mpCallback;
+        }
+    }
 }
 
-void RESTEngine::addCallBack(std::string uri, RESTMethod method, RESTCallBack* p)
+void RESTEngine::addCallBack(std::string uri, std::string method, RESTCallBack* p)
 {
     ResourceIdentifier ri;
     ri.regex.assign(uri);
     ri.uri = uri;
     ri.mpCallback = p;
 
-    switch (method)
-    {
-        case RESTMethod::POST: mPOSTCallBackList.push_back(ri); break;
-        case RESTMethod::GET: mGETCallBackList.push_back(ri); break;
-        case RESTMethod::PUT: mPUTCallBackList.push_back(ri); break;
-        case RESTMethod::DELETE: mDELETECallBackList.push_back(ri); break;
-    }
+    std::string tmp = method;
+    std::transform(tmp.begin(),tmp.end(),tmp.begin(),::toupper); 
+    mCallbacks[tmp].push_back(ri);
 }
 
 void RESTEngine::removeCallBack(RESTCallBack* p)
 {
-    for (auto it=mPOSTCallBackList.begin();it!=mPOSTCallBackList.end();it++) if (it->mpCallback == p) {mPOSTCallBackList.erase(it);break;}
-    for (auto it=mGETCallBackList.begin();it!=mGETCallBackList.end();it++) if (it->mpCallback == p) {mGETCallBackList.erase(it);break;}
-    for (auto it=mPUTCallBackList.begin();it!=mPUTCallBackList.end();it++) if (it->mpCallback == p) {mPUTCallBackList.erase(it);break;}
-    for (auto it=mDELETECallBackList.begin();it!=mDELETECallBackList.end();it++) if (it->mpCallback == p) {mDELETECallBackList.erase(it);break;}
+    for (CallbackMap::iterator it = mCallbacks.begin(); it != mCallbacks.end(); it++)
+    {
+        for (auto it2=it->second.begin();it2!=it->second.end();it2++)
+        {
+            if (it2->mpCallback == p)
+            {
+                it->second.erase(it2);
+                break;
+            }
+        }
+    }
     delete p;
 }
 
 RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data)
 {
-    RESTMethod m;
-    auto list = &mPOSTCallBackList;
     std::string tmp = method;
     std::transform(tmp.begin(),tmp.end(),tmp.begin(),::toupper); 
-    if (tmp=="POST")
-    {
-        m = RESTMethod::POST;
-        list = &mPOSTCallBackList;
-    }
-    else if (tmp=="GET")
-    {
-        m = RESTMethod::GET;
-        list = &mGETCallBackList;
-    }
-    else if (tmp=="PUT")
-    {
-        m = RESTMethod::PUT;
-        list = &mPUTCallBackList;
-    }
-    else if (tmp=="DELETE")
-    {
-        m = RESTMethod::DELETE;
-        list = &mDELETECallBackList;
-    }
-    else
-    {
-        return MethodNotAllowed;
-    }
+    if (mCallbacks.count(tmp) == 0) return MethodNotAllowed;
+    auto& list = mCallbacks[tmp];
 
     std::string urlPart1 = url;
     std::string urlPart2 = "";
@@ -84,13 +66,15 @@ RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j,std::string ur
         paramStart = url.find_first_of(" ");
         // avoiding a crash on MSVC2010
         if (paramStart==std::string::npos)
+        {
             paramStart=url.size();
+        }
         urlPart1 = url.substr(0,paramStart);
     }
 
     RESTCallBack *p = 0;
     std::smatch matches;
-    for (auto it = list->begin(); it != list->end(); ++it)
+    for (auto it = list.begin(); it != list.end(); ++it)
     {
         if (std::regex_match(urlPart1,matches, it->regex))
         {
@@ -110,33 +94,17 @@ RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j,std::string ur
 void RESTEngine::documentInterface(Dumais::JSON::JSON& json)
 {
     json.addList("api");
-    for (auto it = mPOSTCallBackList.begin(); it != mPOSTCallBackList.end(); ++it)
+    for (CallbackMap::iterator it = mCallbacks.begin(); it != mCallbacks.end(); it++)
     {
-        Dumais::JSON::JSON& j = json["api"].addObject();
-        it->mpCallback->getDescription(j);
-        j.addValue(it->uri,"path");
-        j.addValue("POST","method");
-    }
-    for (auto it = mGETCallBackList.begin(); it != mGETCallBackList.end(); ++it)
-    {
-        Dumais::JSON::JSON& j = json["api"].addObject();
-        it->mpCallback->getDescription(j);
-        j.addValue(it->uri,"path");
-        j.addValue("GET","method");
-    }
-    for (auto it = mPUTCallBackList.begin(); it != mPUTCallBackList.end(); ++it)
-    {
-        Dumais::JSON::JSON& j = json["api"].addObject();
-        it->mpCallback->getDescription(j);
-        j.addValue(it->uri,"path");
-        j.addValue("PUT","method");
-    }
-    for (auto it = mDELETECallBackList.begin(); it != mDELETECallBackList.end(); ++it)
-    {
-        Dumais::JSON::JSON& j = json["api"].addObject();
-        it->mpCallback->getDescription(j);
-        j.addValue(it->uri,"path");
-        j.addValue("DELETE","method");
+        std::string method = it->first;
+        std::transform(method.begin(),method.end(),method.begin(),::toupper); 
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+        {
+            Dumais::JSON::JSON& j = json["api"].addObject();
+            it2->mpCallback->getDescription(j);
+            j.addValue(it2->uri,"path");
+            j.addValue(method,"method");
+        }
     }
 
     return;
