@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include "PlainSocket.h"
 #include "SecureSocket.h"
+#include "WebServerLogging.h"
 
 using namespace Dumais::WebServer;
 
@@ -129,7 +130,6 @@ void TcpServer::run()
         close(it->first);
         delete it->second;
     }
-printf("EXIT\r\n");
     // cleanup
     this->listenSocket->close();
     close(this->controlEventFd);
@@ -172,6 +172,7 @@ bool TcpServer::processAccept(int efd)
             }
             else
             {
+                LOG("error while accepting. returned " << errno);
                 return false;
             }
         }
@@ -222,7 +223,11 @@ int TcpServer::processReceive(int socket)
             }
             else 
             {
-                if (errno != EAGAIN) abort();
+                if (errno != EAGAIN)
+                {
+                    LOG("Read error. Returned " << errno);
+                    abort();
+                }
             }
             break;
         }
@@ -252,7 +257,11 @@ int TcpServer::processSend()
             sent = client->getSocket()->send(buffer, size);    
             if (sent == -1)
             {
-                if (errno != EAGAIN) abort();
+                if (errno != EAGAIN)
+                {
+                    LOG("write error. returned " << errno);
+                    abort();
+                }
                 //if EAGAIN, we stop sending and we will get notified by EPOLL when we are ready again
             }
             else if (sent == 0)
