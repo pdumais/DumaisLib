@@ -21,7 +21,6 @@ clean:
 .PHONY: json
 json:
 	cd $(JSONFOLDER) && make
-	cp $(JSONFOLDER)/json.a ./
 
 lib: json $(OBJECTS) main.cpp
 	$(AR) rcs $(STATICMODULE) $(OBJECTS)
