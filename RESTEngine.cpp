@@ -46,12 +46,19 @@ void RESTEngine::removeCallBack(RESTCallBack* p)
     delete p;
 }
 
-RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data)
+RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j, std::string url,
+                                            const std::string& method, const std::string& data) const
 {
     std::string tmp = method;
     std::transform(tmp.begin(),tmp.end(),tmp.begin(),::toupper); 
-    if (mCallbacks.count(tmp) == 0) return MethodNotAllowed;
-    auto& list = mCallbacks[tmp];
+    if (mCallbacks.count(tmp) == 0)
+        return MethodNotAllowed;
+
+    // invoke has to be const in order to be thread safe. Do not use [] accessor that is adding an entry if not found.
+    CallbackMap::const_iterator callbackIt = mCallbacks.find(tmp);
+    if (callbackIt == mCallbacks.end())
+        return MethodNotAllowed;
+    auto& list = callbackIt->second;
 
     std::string urlPart1 = url;
     std::string urlPart2 = "";
