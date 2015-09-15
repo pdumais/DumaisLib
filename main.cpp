@@ -61,5 +61,8 @@ int main(int argc, char**argv)
     engine.removeCallBack(pc1);
     engine.removeCallBack(pc2);
     engine.removeCallBack(pc3);
+    engine.removeCallBack(pc4);
+
+    delete p;
     return 0;
 }
