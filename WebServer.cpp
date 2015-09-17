@@ -36,7 +36,7 @@ void WebServer::onFramingError(TcpClient* client, int error)
 
     if (error == -3)
     {
-        resp = HTTPProtocol::buildBufferedResponse(NotAcceptable,"","");
+        resp = HTTPProtocol::buildBufferedResponse(NotImplemented,"","");
     }
     else if (error == -2)
     {

@@ -34,7 +34,7 @@ int HTTPFramingStrategy::processData(char* buffer, size_t size, FullMessageInfo&
         return size;
     }
 
-    std::regex r("transfer-encoding: *chuncked",std::regex_constants::icase);
+    std::regex r("transfer-encoding: *chunked",std::regex_constants::icase);
     std::smatch matches;
     if (std::regex_search(message,matches,r))
     {

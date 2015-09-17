@@ -208,7 +208,7 @@ int main(int argc, char** argv)
     ss << "GET /test243 HTTP/1.1\r\n";
     ss << "Host: 127.0.0.1\r\n";
     ss << "Connection: close\r\n";
-    ss << "Transfer-Encoding: chuncked\r\n";
+    ss << "Transfer-Encoding: chunked\r\n";
     ss << "\r\nabc";
     const char* buf = ss.str().c_str();
     int sock = getURL("127.0.0.1",5555);
