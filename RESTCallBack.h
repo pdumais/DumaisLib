@@ -16,16 +16,16 @@ struct RESTContext
 class RESTCallBack
 {
 private:
-    std::function<void(RESTContext)> mCallback;
+    std::function<void(RESTContext*)> mCallback;
     StringMap mParamList;
     std::string mDescription;
 public:
     template<class T> RESTCallBack(T* obj,
-        void(T::*func)(RESTContext),
+        void(T::*func)(RESTContext*),
         const std::string& description)
     {
         mDescription = description;
-        mCallback = std::bind(func,obj,std::placeholders::_1);
+        mCallback = std::bind(func, obj, std::placeholders::_1);
     }
     ~RESTCallBack();
 

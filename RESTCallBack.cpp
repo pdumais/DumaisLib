@@ -30,6 +30,7 @@ void RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString
         dataString,
         matches
     };
-    if (mCallback) mCallback(context);
+    if (mCallback)
+        mCallback(&context);
 }
 

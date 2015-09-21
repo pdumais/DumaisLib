@@ -4,22 +4,22 @@
 class class1
 {
 public:
-    void c1(RESTContext context)
+    void c1(RESTContext* context)
     {
-        RESTParameters *p = context.params;
+        RESTParameters *p = context->params;
         printf("c1: p1=[%s], p2=[%s], p3=[%s], p4=[%s]\r\n",p->getParam("p1").c_str(),p->getParam("p2").c_str(),
                 p->getParam("p3").c_str(),p->getParam("p4").c_str());
     }
-    void c2(RESTContext context)
+    void c2(RESTContext* context)
     {
-        RESTParameters *p = context.params;
+        RESTParameters *p = context->params;
         printf("c2: p1=[%s], p2=[%s], p3=[%s], p4=[%s]\r\n",p->getParam("p1").c_str(),p->getParam("p2").c_str(),
                 p->getParam("p3").c_str(),p->getParam("p4").c_str());
     }
-    void c3(RESTContext context)
+    void c3(RESTContext* context)
     {
-        RESTParameters *p = context.params;
-        printf("c3: [%s]\r\n", context.matches[1].str().c_str());
+        RESTParameters *p = context->params;
+        printf("c3: [%s]\r\n", context->matches[1].str().c_str());
     }
 };
 
