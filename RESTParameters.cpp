@@ -1,6 +1,6 @@
 #include "RESTParameters.h"
 
-RESTParameters::RESTParameters(std::string params, StringMap registeredParams)
+RESTParameters::RESTParameters(const std::string &params, const StringMap &registeredParams)
 {
     std::string key;
     std::string value;
@@ -19,7 +19,7 @@ RESTParameters::RESTParameters(std::string params, StringMap registeredParams)
             keyFlag = true;
             key="";
             value="";
-        } 
+        }
         else
         {
             if (keyFlag)

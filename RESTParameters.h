@@ -11,8 +11,8 @@ private:
     StringMap mParameters;
 
 public:
-	RESTParameters(std::string params, StringMap registeredParams);
-	~RESTParameters();
+    RESTParameters(const std::string &params, const StringMap &registeredParams);
+    ~RESTParameters();
 
     std::string getParam(std::string key);
 
