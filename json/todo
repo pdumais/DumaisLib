@@ -1,0 +1,5 @@
+support exponential numbers
+memory leak in Object, when crushing a value
+allow apostrophe not to be escaped when parsing, and do not escape it with stringify
+
+
