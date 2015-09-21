@@ -8,10 +8,6 @@ The server is single threaded and uses epoll internally. The server will spawn a
 will handle all the job. Sending data to clients can be done from another thread since the internal
 message queue is thread safe.
 
-Compiling
-==============
-Makefile will generate a webserver.a static library to you can link your projects with.
-
 Usage
 ==============
 All you need to do is implement the IWebServerListener interface
