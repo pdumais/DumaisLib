@@ -1,0 +1,5 @@
+- instead of listener class, use delegates
+- possibility to launch own thread instead of work()
+
+- 100% RFC compliance
+
