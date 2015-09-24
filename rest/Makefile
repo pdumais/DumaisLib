@@ -6,7 +6,7 @@ SOURCESTEST = main.cpp
 OBJECTS=$(SOURCESCPP:.cpp=.o)
 OBJECTSTEST=$(SOURCESTEST:.cpp=.o)
 JSONFOLDER = ../json
-CFLAGS=-I $(JSONFOLDER) -g -std=c++11
+CFLAGS=-I ../ -g -std=c++11
 LDFLAGS=
 STATICMODULE=rest.a
 
