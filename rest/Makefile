@@ -1,4 +1,5 @@
 all: lib
+tls: lib
 
 
 SOURCESCPP = RESTEngine.cpp RESTCallBack.cpp RESTParameters.cpp

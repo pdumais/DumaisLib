@@ -1,5 +1,5 @@
 #include "WSProtocolParser.h"
-#include "Logging.h"
+#include "utils/Logging.h"
 #include <string.h>
 
 #define DEFAULT_DATA_SIZE 1024

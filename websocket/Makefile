@@ -1,12 +1,15 @@
-SOURCES = WebSocketServer.cpp WebSocket.cpp Logging.cpp sha1.cpp base64.cpp HTTPProtocolParser.cpp WSProtocolParser.cpp
+SOURCES = WebSocketServer.cpp WebSocket.cpp sha1.cpp base64.cpp HTTPProtocolParser.cpp WSProtocolParser.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-
+CFLAGS=-I ../ -g -std=c++11
 .cpp.o:
-	g++ -g -std=c++11 -c $< -o $@
+	g++ $(CFLAGS) -c $< -o $@
 
 
 all: lib
-	g++ -g -std=c++11 main.cpp websocket.a
+tls: lib
+
+test: lib
+	g++ -g $(CFLAGS) main.cpp websocket.a
 
 lib: $(OBJECTS)
 	$(AR) rcs websocket.a $(OBJECTS)

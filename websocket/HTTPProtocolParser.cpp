@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "HTTPProtocolParser.h"
-#include "Logging.h"
+#include "utils/Logging.h"
 #include "sha1.h"
 #include "base64.h"
 #include <sstream>

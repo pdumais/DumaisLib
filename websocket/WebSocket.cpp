@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "Logging.h"
+#include "utils/Logging.h"
 #include "WebSocket.h"
 #include <string.h>
 #include <sstream>
@@ -32,6 +32,7 @@ SOFTWARE.
 #define CLOSING_TIMEOUT 5
 
 using namespace Dumais::WebSocket;
+using namespace Dumais::Utils;
 
 WebSocket::WebSocket(std::function<bool(const std::string& request,
                                          std::map<std::string,std::string> protocols,

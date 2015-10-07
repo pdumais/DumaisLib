@@ -26,7 +26,7 @@ SOFTWARE.
 #include <queue>
 #include <map>
 #include <string>
-#include "MPSCRingBuffer.h"
+#include "utils/MPSCRingBuffer.h"
 #include <sys/epoll.h>
 #include "HTTPProtocolParser.h"
 #include "WSProtocolParser.h"
@@ -80,7 +80,7 @@ namespace Dumais
                 size_t currentIndex;
                 bool mustDeleteBuffer;
             };
-            MPSCRingBuffer<SendBuffer>* txList;
+            Dumais::Utils::MPSCRingBuffer<SendBuffer>* txList;
             SendBuffer currentSendBuffer;
 
             void abortWebSocket();

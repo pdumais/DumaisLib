@@ -28,7 +28,7 @@ typedef unsigned int uint32_t;
 
 namespace Dumais
 {
-    namespace WebSocket
+    namespace Utils
     {
 
         // Multi-Producer, Single-Consumer, lock-free ring buffer

@@ -22,26 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Logging.h"
-#include <stdio.h>
-#include <stdarg.h>
+#pragma once
+#include <sstream>
 
-using namespace Dumais::WebSocket;
+#define LOG(x) {std::stringstream logss; logss << x; Dumais::Utils::Logging::log(logss.str());}
 
-ILogger* Logging::logger = 0;
-
-Logging::Logging(){
-}
-
-Logging::~Logging(){
-}
-
-void Logging::log(const std::string& ss)
+namespace Dumais
 {
-    if (Logging::logger) Logging::logger->log(ss);
-}
+    namespace Utils
+    {
+        class ILogger
+        {
+        public:
+            virtual void log(const std::string& ss) = 0;
+        };
 
-void ConsoleLogger::log(const std::string& ss)
-{
-    printf("%s",ss.c_str());
-}
+        class ConsoleLogger: public ILogger
+        {
+        public:
+            virtual void log(const std::string& ss);   
+        };
+
+        class Logging
+        {
+        public:
+        	Logging();
+        	~Logging();
+
+            static ILogger* logger;
+            static void log(const std::string& ss);
+        };
+    }
+};
+
+

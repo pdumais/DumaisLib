@@ -4,7 +4,8 @@ using namespace Dumais::WebSocket;
 
 int main(int argc, char** argv)
 {
-    WebSocketServer ws(8056,20, new Dumais::WebSocket::ConsoleLogger());
+    Dumais::Utils::Logging::logger = new Dumais::Utils::ConsoleLogger();
+    WebSocketServer ws(8056,20);
 
     // I'm using lambdas for callbacks here, but you prefer to put your code in a 
     // function then you would do: ws.setOnWebSocketRequest(functionName); or for a method:

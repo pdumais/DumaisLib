@@ -25,7 +25,7 @@ SOFTWARE.
 
 #include <unordered_map>
 #include <list>
-#include "Logging.h"
+#include "utils/Logging.h"
 #include <functional>
 #include "WebSocket.h"
 
@@ -59,7 +59,7 @@ namespace Dumais
             std::function<void(WebSocket*,WebSocketMessage message)> mOnMessage;
 
         public:
-            WebSocketServer(int port, int maxConnections, Dumais::WebSocket::ILogger* logger);    
+            WebSocketServer(int port, int maxConnections);    
             ~WebSocketServer();    
 
             // reactor function

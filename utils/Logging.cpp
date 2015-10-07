@@ -22,26 +22,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "WebServerLogging.h"
+#include "Logging.h"
 #include <stdio.h>
 #include <stdarg.h>
 
-using namespace Dumais::WebServer;
+using namespace Dumais::Utils;
 
-IWebServerLogger* WebServerLogging::logger = 0;
+ILogger* Logging::logger = 0;
 
-WebServerLogging::WebServerLogging(){
+Logging::Logging(){
 }
 
-WebServerLogging::~WebServerLogging(){
+Logging::~Logging(){
 }
 
-void WebServerLogging::log(const std::string& ss)
+void Logging::log(const std::string& ss)
 {
-    if (WebServerLogging::logger) WebServerLogging::logger->log(ss);
+    if (Logging::logger) Logging::logger->log(ss);
 }
 
-void WebServerConsoleLogger::log(const std::string& ss)
+void ConsoleLogger::log(const std::string& ss)
 {
     printf("%s",ss.c_str());
 }

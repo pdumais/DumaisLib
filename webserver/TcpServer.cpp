@@ -10,7 +10,7 @@
 #include <netdb.h>
 #include "PlainSocket.h"
 #include "SecureSocket.h"
-#include "WebServerLogging.h"
+#include "utils/Logging.h"
 
 using namespace Dumais::WebServer;
 

@@ -8,6 +8,7 @@
 
 #define MAX_INTERNAL_TX_COUNT 4000
 using namespace Dumais::WebServer;
+using namespace Dumais::Utils;
 
 
 TcpClient::TcpClient(ITcpClientContext* ctx, IFramingStrategy* fs)

@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "Logging.h"
+#include "utils/Logging.h"
 #include "WebSocketServer.h"
 #include <stdio.h>
 #include <fcntl.h>
@@ -35,9 +35,8 @@ SOFTWARE.
 
 using namespace Dumais::WebSocket;
 
-WebSocketServer::WebSocketServer(int port, int maxConnections, Dumais::WebSocket::ILogger* logger)
+WebSocketServer::WebSocketServer(int port, int maxConnections)
 {
-    Dumais::WebSocket::Logging::logger = logger;
     this->epollFD = -1;
     this->maxConnections = maxConnections;
 

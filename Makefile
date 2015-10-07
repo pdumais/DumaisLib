@@ -1,10 +1,12 @@
 all: libs
+tls: libs
 OUTDIR=./sdk
 LIBDIR=$(OUTDIR)/lib
 INCLUDEDIR=$(OUTDIR)/include
 MODULES=$(sort $(patsubst ./%/,%,$(dir $(wildcard ./*/Makefile))))
 LIBS=$(addprefix $(LIBDIR)/,$(MODULES))
 LIBS:=$(addsuffix .a,$(LIBS))
+tls:TLS=tls
 
 clean-%:
 	-cd $* && make clean
@@ -13,8 +15,8 @@ clean: $(addprefix clean-,$(MODULES))
 	-rm -R $(OUTDIR)
 
 $(LIBDIR)/%.a:%
-	cd $< && make
-	mv $</$<.a $@
+	cd $< && make $(TLS)
+	-mv $</$<.a $@
 	mkdir -p $(INCLUDEDIR)/$<
 	cp $</*.h $(INCLUDEDIR)/$<
 

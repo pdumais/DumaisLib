@@ -1,4 +1,5 @@
 all: tests
+tls: tests
 OBJECTS = JSON.o List.o Object.o Value.o Parser.o
 SOURCES=$(OBJECTS:.o=.cpp)
 

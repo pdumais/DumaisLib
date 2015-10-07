@@ -4,7 +4,7 @@
 #include <queue>
 #include "ITcpClientContext.h"
 #include "IFramingStrategy.h"
-#include "MPSCRingBuffer.h"
+#include "utils/MPSCRingBuffer.h"
 #include "ISocket.h"
 
 namespace Dumais{
@@ -48,7 +48,7 @@ private:
         bool mustDeleteBuffer;
     };
 
-    MPSCRingBuffer<SendBuffer>* txList;
+    Dumais::Utils::MPSCRingBuffer<SendBuffer>* txList;
     SendBuffer currentSendBuffer;
     ITcpClientContext* context;
     IFramingStrategy *framingStrategy; 
