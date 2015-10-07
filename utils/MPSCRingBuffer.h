@@ -43,7 +43,7 @@ namespace Dumais
         class MPSCRingBuffer
         {
         public:
-            MPSCRingBuffer(uint32_t size)
+            MPSCRingBuffer(uint32_t size = 128)
             {
                 this->head = 0;
                 this->tail = 0;
