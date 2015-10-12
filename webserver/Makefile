@@ -7,6 +7,8 @@ CFLAGS+=-std=c++11 -g -I ../
 LDFLAGS+=-lpthread -lcurl
 tls:CFLAGS+=-DUSING_OPENSSL
 tls:LDFLAGS+=-lssl -lcrypto
+tlstests:CFLAGS+=-DUSING_OPENSSL
+tlstests:LDFLAGS+=-lssl -lcrypto
 
 clean:
 	-rm *.o
@@ -20,4 +22,7 @@ lib: $(OBJECTS)
 	$(AR) rcs webserver.a $(OBJECTS) 
 
 tests: lib main.o
+	g++ main.o webserver.a ../utils/utils.a -std=c++0x -o test $(LDFLAGS)
+
+tlstests: lib main.o
 	g++ main.o webserver.a ../utils/utils.a -std=c++0x -o test $(LDFLAGS)
