@@ -123,7 +123,7 @@ void Dumais::Utils::sha256(char* input, unsigned int size, char* output)
 
 
     }
-
+    delete words;
     for (i=0;i<8;i++) MOVEBE(H[i],H[i]);
     tohex((unsigned char*)&H[0],32,output);
 }
