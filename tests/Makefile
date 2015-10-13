@@ -14,7 +14,7 @@ clean:
 	-rm *.out
 
 .cpp.out:
-	$(CXX) $(CFLAGS) $<  ../sdk/lib/*.a -std=c++11 -o $@ $(LDFLAGS)
+	$(CXX) $(CFLAGS) $<  ../sdk/lib/dumaislib.a -std=c++11 -o $@ $(LDFLAGS)
 
 tests: clean $(OBJECTS)
 

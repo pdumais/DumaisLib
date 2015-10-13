@@ -12,13 +12,15 @@ tls:TLS=tls
 clean-%:
 	-cd $* && make clean
 	-cd tests && make clean
+	-rm -rf obj
 
 clean: $(addprefix clean-,$(MODULES))
 	-rm -R $(OUTDIR)
 
 $(LIBDIR)/%.a:%
 	cd $< && make $(TLS)
-	-mv $</$<.a $@
+	-mkdir -p obj
+	-cp $</*.o obj/
 	mkdir -p $(INCLUDEDIR)/$<
 	cp $</*.h $(INCLUDEDIR)/$<
 
@@ -31,4 +33,5 @@ libs: outdir $(LIBS)
 
 .PHONY: test
 test: libs 
+	$(AR) rcs $(LIBDIR)/dumaislib.a obj/*.o
 	cd tests && make $(TLS)
