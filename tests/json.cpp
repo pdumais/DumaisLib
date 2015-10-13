@@ -1,6 +1,6 @@
 #include "stdio.h"
-#include "JSON.h"
-#include "Object.h"
+#include "json/JSON.h"
+#include "json/Object.h"
 
 using namespace Dumais;
 

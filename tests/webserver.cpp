@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-#include "WebServer.h"
+#include "utils/Logging.h"
+#include "webserver/WebServer.h"
 #include <unistd.h>
 #include <curl/curl.h>
 #include <string>
@@ -122,6 +123,7 @@ int getURL(std::string server, int port)
 
 int main(int argc, char** argv)
 {
+    Dumais::Utils::Logging::logger = new Dumais::Utils::ConsoleLogger();
     Test test;
     char rcv[1024];
     bool started;

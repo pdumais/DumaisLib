@@ -3,10 +3,7 @@ tls: lib
 
 
 SOURCESCPP = RESTEngine.cpp RESTCallBack.cpp RESTParameters.cpp
-SOURCESTEST = main.cpp
 OBJECTS=$(SOURCESCPP:.cpp=.o)
-OBJECTSTEST=$(SOURCESTEST:.cpp=.o)
-JSONFOLDER = ../json
 CFLAGS=-I ../ -g -std=c++11
 LDFLAGS=
 STATICMODULE=rest.a
@@ -19,11 +16,7 @@ clean:
 .cpp.o:
 	$(CXX) -c $(CFLAGS) $< -o $@
 
-.PHONY: json
-json:
-	cd $(JSONFOLDER) && make
 
-lib: json $(OBJECTS) main.cpp
+lib: $(OBJECTS)
 	$(AR) rcs $(STATICMODULE) $(OBJECTS)
-	$(CXX) $(CFLAGS) main.cpp $(STATICMODULE) $(JSONFOLDER)/json.a
 

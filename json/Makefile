@@ -1,5 +1,5 @@
-all: tests
-tls: tests
+all: lib
+tls: lib
 OBJECTS = JSON.o List.o Object.o Value.o Parser.o
 SOURCES=$(OBJECTS:.o=.cpp)
 
@@ -14,5 +14,3 @@ clean:
 lib: $(OBJECTS)
 	$(AR) rcs json.a $(OBJECTS) 
 
-tests: lib
-	g++ main.cpp json.a -std=c++0x

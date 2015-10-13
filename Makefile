@@ -3,13 +3,15 @@ tls: libs
 OUTDIR=./sdk
 LIBDIR=$(OUTDIR)/lib
 INCLUDEDIR=$(OUTDIR)/include
-MODULES=$(sort $(patsubst ./%/,%,$(dir $(wildcard ./*/Makefile))))
+EXCEPTIONS=./tests/
+MODULES=$(sort $(patsubst ./%/,%,$(filter-out $(EXCEPTIONS),$(dir $(wildcard ./*/Makefile)))))
 LIBS=$(addprefix $(LIBDIR)/,$(MODULES))
 LIBS:=$(addsuffix .a,$(LIBS))
 tls:TLS=tls
 
 clean-%:
 	-cd $* && make clean
+	-cd tests && make clean
 
 clean: $(addprefix clean-,$(MODULES))
 	-rm -R $(OUTDIR)
@@ -28,5 +30,5 @@ libs: outdir $(LIBS)
 	echo $(LIBS)
 
 .PHONY: test
-test: 
-	echo $(LIBS)
+test: libs 
+	cd tests && make $(TLS)

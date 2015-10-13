@@ -1,8 +1,8 @@
-all: lib
-tls: lib
-EXCEPTIONS=./main.cpp
+all: tests
+tls: tests
+EXCEPTIONS=
 SOURCES=$(filter-out $(EXCEPTIONS),$(wildcard ./*.cpp))
-OBJECTS=$(SOURCES:.cpp=.o)
+OBJECTS=$(SOURCES:.cpp=.out)
 CFLAGS+=-std=c++11 -g -I ../
 LDFLAGS+=-lpthread -lcurl
 tls:CFLAGS+=-DUSING_OPENSSL
@@ -11,10 +11,10 @@ tls:LDFLAGS+=-lssl -lcrypto
 clean:
 	-rm *.o
 	-rm *.a
+	-rm *.out
 
-.cpp.o:
-	$(CXX) $(CFLAGS) -c $< -o $@
+.cpp.out:
+	$(CXX) $(CFLAGS) $<  ../sdk/lib/*.a -std=c++11 -o $@ $(LDFLAGS)
 
-lib: $(OBJECTS)
-	$(AR) rcs webserver.a $(OBJECTS) 
+tests: clean $(OBJECTS)
 
