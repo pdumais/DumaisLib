@@ -1,4 +1,5 @@
 #include "HTTPFramingStrategy.h"
+#include <string.h> // needed for memcpy
 #include <regex>
 
 using namespace Dumais::WebServer;
