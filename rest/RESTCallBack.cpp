@@ -19,7 +19,7 @@ void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
     {
         Dumais::JSON::JSON& j = params.addObject("param");
         j.addValue(it->first,"name");
-        j.addValue(it->second.mName, "description");
+        j.addValue(it->second.mDescription, "description");
     }
 }
 
