@@ -217,7 +217,7 @@ int main(int argc, char** argv)
     send(sock,ss.str().c_str(),ss.str().size(),0);
     recv(sock,(char*)&rcv[0],12,0); // just receive 1 byte, we will ignore the response
     rcv[12]=0;
-    ASSERT(!strcmp((char*)&rcv[9],"406"));
+    ASSERT(!strcmp((char*)&rcv[9],"501"));
     }
 
     // test 100 connections at the same time
