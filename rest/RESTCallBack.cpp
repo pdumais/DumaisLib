@@ -4,26 +4,28 @@ RESTCallBack::~RESTCallBack()
 {
 }
 
-void RESTCallBack::addParam(std::string param, std::string description)
+void RESTCallBack::addParam(const std::string &paramName, const std::string &description,
+           bool required, const std::string &type, const std::string &location, const std::string &defaultValue)
 {
-    mParamList[param] = description;
+    mParamList.insert(std::pair<std::string, RESTParameter>(paramName,
+                         RESTParameter(paramName, description, required, type, location, defaultValue)) );
 }
 
 void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
 {
     json.addValue(mDescription,"description");
-    json.addList("params");
-    for (StringMap::iterator it = mParamList.begin();it!=mParamList.end();it++)
+    Dumais::JSON::JSON& params = json.addList("params");
+    for (ParamMap::const_iterator it = mParamList.begin(); it!=mParamList.end(); it++)
     {
-        Dumais::JSON::JSON& j = json["params"].addObject("param");
+        Dumais::JSON::JSON& j = params.addObject("param");
         j.addValue(it->first,"name");
-        j.addValue(it->second,"description");
+        j.addValue(it->second.mName, "description");
     }
 }
 
 void RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
 {
-    RESTParameters params(paramString,mParamList);
+    RESTParameters params(paramString, mParamList);
     RESTContext context ={
         json,
         &params,

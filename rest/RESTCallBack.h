@@ -17,7 +17,7 @@ class RESTCallBack
 {
 private:
     std::function<void(RESTContext*)> mCallback;
-    StringMap mParamList;
+    ParamMap mParamList;
     std::string mDescription;
 public:
     template<class T> RESTCallBack(T* obj,
@@ -29,8 +29,29 @@ public:
     }
     ~RESTCallBack();
 
-    void addParam(std::string param, std::string description);
+    void addParam(const std::string &param, const std::string &description,
+                  bool required = true, const std::string &type="string",
+                  const std::string &location="query", const std::string &defaultValue="");
     void getDescription(Dumais::JSON::JSON& json);
+    void getSwaggerDescription(Dumais::JSON::JSON& json)
+    {
+        json.addValue(mDescription,"summary");
+        json.addValue(mDescription,"description");
+        if (mParamList.empty())
+            return;
+        Dumais::JSON::JSON& params = json.addList("parameters");
+        for (ParamMap::iterator it = mParamList.begin(); it!=mParamList.end(); it++)
+        {
+            Dumais::JSON::JSON& j = params.addObject("param");
+            j.addValue(it->first,"name");
+            j.addValue(it->second.mDescription, "description");
+            j.addValue(it->second.mType, "type");
+            j.addValue(it->second.mLocation, "in");
+            j.addValue(it->second.mRequired, "required");
+            if (!it->second.mDefaultValue.empty())
+                j.addValue(it->second.mDefaultValue, "default");
+        }
+    }
     void call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data, std::smatch&);
 };
 

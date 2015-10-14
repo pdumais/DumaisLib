@@ -117,3 +117,37 @@ void RESTEngine::documentInterface(Dumais::JSON::JSON& json)
     return;
 }
 
+void RESTEngine::documentSwaggerInterface(Dumais::JSON::JSON& json,
+                            const std::string &version, const std::string &title, const std::string &description,
+                            const std::string &schemes, const std::string &host, const std::string &basePath)
+{
+    json.addValue(2.0, "swagger"); // schema specs 2.0
+
+    Dumais::JSON::JSON &info = json.addObject("info");
+    info.addValue(version, "version");
+    info.addValue(title, "title");
+    info.addValue(description, "descrition");
+
+    json.addValue(schemes, "schemes");
+    json.addValue(host, "host");
+    json.addValue(basePath, "basePath");
+
+    // Todo later: add support for tagging:
+    // https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#tagObject
+    //Dumais::JSON::JSON &tags = json.addList("tags");
+
+    Dumais::JSON::JSON &paths = json.addObject("paths");
+    for (CallbackMap::iterator it = mCallbacks.begin(); it != mCallbacks.end(); it++)
+    {
+        std::string method = it->first;
+        std::transform(method.begin(),method.end(),method.begin(),::tolower);
+        for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+        {
+            Dumais::JSON::JSON& path = paths.addObject(it2->uri);
+            Dumais::JSON::JSON& endpoint = path.addObject(method);
+            it2->mpCallback->getSwaggerDescription(endpoint);
+        }
+
+    }
+    return;
+}

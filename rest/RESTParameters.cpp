@@ -1,6 +1,6 @@
 #include "RESTParameters.h"
 
-RESTParameters::RESTParameters(const std::string &params, const StringMap &registeredParams)
+RESTParameters::RESTParameters(const std::string &params, const ParamMap &registeredParams)
 {
     std::string key;
     std::string value;
@@ -15,7 +15,8 @@ RESTParameters::RESTParameters(const std::string &params, const StringMap &regis
         }
         else if (params[n]=='&' || params[n]==' ' || params[n]=='\r' || params[n]=='\n')
         {
-            if (registeredParams.find(key)!=registeredParams.end()) mParameters[key]=value;
+            if (registeredParams.find(key)!=registeredParams.end())
+                mParametersValues[key]=value;
             keyFlag = true;
             key="";
             value="";
@@ -35,7 +36,8 @@ RESTParameters::RESTParameters(const std::string &params, const StringMap &regis
         n++;
         if (n==params.size() || params[n]==' ' || params[n]=='\r' || params[n]=='\n')
         {
-            if (registeredParams.find(key)!=registeredParams.end()) mParameters[key]=value;
+            if (registeredParams.find(key)!=registeredParams.end())
+                mParametersValues[key]=value;
             key="";
             value="";
             break;
@@ -48,7 +50,8 @@ RESTParameters::~RESTParameters(){
 
 std::string RESTParameters::getParam(std::string key)
 {
-    if (mParameters.find(key)!=mParameters.end()) return mParameters[key];
+    if (mParametersValues.find(key)!=mParametersValues.end())
+        return mParametersValues[key];
 
     return "";
 }
