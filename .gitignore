@@ -1,0 +1,8 @@
+json/*.o
+obj/*.o
+rest/build
+rest/*.o
+sdk
+webserver/*.o
+websocket/*.o
+utils/*.o
