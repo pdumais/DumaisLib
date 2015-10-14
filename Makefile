@@ -29,9 +29,9 @@ outdir:
 	mkdir -p $(INCLUDEDIR)
 
 libs: outdir $(LIBS)
+	$(AR) rcs $(LIBDIR)/dumaislib.a obj/*.o
 	echo $(LIBS)
 
 .PHONY: test
 test: libs 
-	$(AR) rcs $(LIBDIR)/dumaislib.a obj/*.o
 	cd tests && make $(TLS)
