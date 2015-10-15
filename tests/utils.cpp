@@ -2,6 +2,7 @@
 #include <string.h>
 #include "utils/sha256.h"
 #include "utils/sha1.h"
+#include "utils/md5.h"
 
 #define SIZE 1000
 
@@ -29,6 +30,13 @@ int main(int argc, char** argv)
     SHA1 s4(test2,SIZE);
     st = s4.toHex();
     if (st!="3ae3644d6777a1f56a1defeabc74af9c4b313e49") printf("ERROR 4:%s\r\n",st.c_str()); else printf("OK 4\r\n");
+
+    MD5 s5(test,strlen(test));
+    st = s5.toHex();
+    if (st!="098f6bcd4621d373cade4e832627b4f6") printf("ERROR 5:%s\r\n",st.c_str()); else printf("OK 5\r\n");
+    MD5 s6(test2,SIZE);
+    st = s6.toHex();
+    if (st!="7644672d049290f0390d9c993c7d343d") printf("ERROR 6:%s\r\n",st.c_str()); else printf("OK 6\r\n");
 
     delete test2;
 

@@ -24,7 +24,7 @@ SOFTWARE.
 #include "HTTPProtocolParser.h"
 #include "utils/Logging.h"
 #include "utils/sha1.h"
-#include "base64.h"
+#include "utils/Base64.h"
 #include <sstream>
 #include <algorithm>
 #include <string.h>
@@ -169,7 +169,7 @@ std::string HTTPProtocolParser::switchProtocol(const std::string& key, const std
     std::string accept = key+MAGIC;
 
     Dumais::Utils::SHA1 sha(accept.c_str(),accept.size());
-    accept = base64_encode(sha.getDigest(),20);
+    accept = Base64::encode((char*)sha.getDigest(),20);
 
     std::stringstream ss;
     ss << "HTTP/1.1 101 Switching Protocols\r\n";

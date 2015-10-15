@@ -4,7 +4,7 @@
 #include <sstream>
 #include <time.h>
 #include <fstream>
-#include "md5.h"
+#include "utils/md5.h"
 
 using namespace Dumais::WebServer;
 
@@ -180,7 +180,8 @@ bool WebServer::validateAuthentication(HTTPRequest* req, HTTPAuth auth)
 
 std::string WebServer::computemd5(const std::string& st)
 {
-    return md5(st);
+    Dumais::Utils::MD5 md5(st.c_str(),st.size());
+    return md5.toHex();
 }
 
 void WebServer::clearExpiredSessions()
