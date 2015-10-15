@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
 #include "rest/RESTEngine.h"
 
 class class1
@@ -24,7 +26,9 @@ public:
 };
 
 
-
+#define CHECK(X) if (!(X)) { \
+    std::cerr << "Failed to check " << #X << " at line " << __LINE__ << std::endl; \
+    return EXIT_FAILURE; }
 
 int main(int argc, char**argv)
 {
@@ -41,6 +45,7 @@ int main(int argc, char**argv)
     pc2->addParam("p4","p4 description");
     pc3->addParam("p3","p3 description");
     pc3->addParam("p4","p4 description");
+    pc4->addParam("ID", "product ID", true, "string", "path");
 
     engine.addCallBack("/test1/blah","get",pc1);
     engine.addCallBack("/test2/blah2","GET",pc2);
@@ -48,15 +53,31 @@ int main(int argc, char**argv)
     engine.addCallBack("/test3/([a-z0-9]*)","POST",pc4);
 
     Dumais::JSON::JSON j;
-    engine.invoke(j,"/test1/blah?p1=test1 ","GET","");
-    engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4","GET","");
-    engine.invoke(j,"/test2/test?p1=test1&p2=test2&p3=test33&p4=test44","DELETE","");
-    engine.invoke(j,"/test2/rest","DELETE","");
-    engine.invoke(j,"/test3/product144","POST","");
+    RESTEngine::ResponseCode rc;
+    rc = engine.invoke(j,"/test1/blah?p1=test1 ","GET","");
+    CHECK(rc == RESTEngine::OK);
+    rc = engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4","GET","");
+    CHECK(rc == RESTEngine::OK);
+    rc = engine.invoke(j,"/test2/test?p1=test1&p2=test2&p3=test33&p4=test44","DELETE","");
+    CHECK(rc == RESTEngine::OK);
+    rc = engine.invoke(j,"/test2/rest","DELETE","");
+    CHECK(rc == RESTEngine::NotFound);
+    rc = engine.invoke(j,"/test3/product144","POST","");
+    CHECK(rc == RESTEngine::OK);
 
     Dumais::JSON::JSON json;
     engine.documentInterface(json);
     printf("%s\r\n",json.stringify(true).c_str());
+
+    Dumais::JSON::JSON swaggerSchema;
+    engine.documentSwaggerInterface(swaggerSchema, "1", "title", "description", "http", "localhost", "/api");
+    if (!swaggerSchema.isValid()) {
+        std::cerr << "invalid JSON swagger schema" << std::endl;
+    } else {
+        std::ofstream swaggerSchemaFile(argc>1?argv[1]:"swagger.json");
+        swaggerSchemaFile << swaggerSchema.stringify(true);
+        swaggerSchemaFile.close();
+    }
 
     engine.removeCallBack(pc1);
     engine.removeCallBack(pc2);
@@ -64,5 +85,5 @@ int main(int argc, char**argv)
     engine.removeCallBack(pc4);
 
     delete p;
-    return 0;
+    return EXIT_SUCCESS;
 }

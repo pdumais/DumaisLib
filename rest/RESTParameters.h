@@ -8,6 +8,9 @@ typedef std::unordered_map<std::string,std::string> StringMap;
 
 class RESTParameter {
 public:
+    /*
+     * Create a new  RESTParameter
+     */
     RESTParameter(const std::string &name, const std::string &desc,
                   bool required=true, const std::string &type="string",
                   const std::string &location="query", const std::string &defaultValue=""):

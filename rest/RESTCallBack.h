@@ -29,6 +29,14 @@ public:
     }
     ~RESTCallBack();
 
+    /*
+     * add a Parameter to this callback
+     * @param : parameter name
+     * @description : description of the parameter
+     * @required : is this parameter required for the callback to be triggered
+     * @type: default is "string"
+     * @location: in "query" (default) or in "path"
+     */
     void addParam(const std::string &param, const std::string &description,
                   bool required = true, const std::string &type="string",
                   const std::string &location="query", const std::string &defaultValue="");
