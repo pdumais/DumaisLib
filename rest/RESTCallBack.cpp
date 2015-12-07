@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "RESTCallBack.h"
 
 RESTCallBack::~RESTCallBack()
@@ -23,16 +24,19 @@ void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
     }
 }
 
-void RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
+RESTEngine::ResponseCode RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
 {
     RESTParameters params(paramString, mParamList);
+    RESTEngine::ResponseCode responseCode = RESTEngine::ResponseCode::OK;
     RESTContext context ={
         json,
         &params,
         dataString,
-        matches
+        matches,
+        responseCode
     };
+    assert(mCallback);
     if (mCallback)
         mCallback(&context);
+    return responseCode;
 }
-

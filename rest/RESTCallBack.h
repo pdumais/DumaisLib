@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include "json/JSON.h"
 #include "RESTParameters.h"
+#include "RESTEngine.h"
 #include <functional>
 #include <regex>
 
@@ -11,6 +12,7 @@ struct RESTContext
     RESTParameters* params;
     const std::string& data;
     std::smatch& matches;
+    RESTEngine::ResponseCode &responseCode;
 };
 
 class RESTCallBack
@@ -60,6 +62,6 @@ public:
                 j.addValue(it->second.mDefaultValue, "default");
         }
     }
-    void call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data, std::smatch&);
+    RESTEngine::ResponseCode call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data, std::smatch&);
 };
 

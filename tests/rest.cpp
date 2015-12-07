@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include "rest/RESTEngine.h"
+#include "rest/RESTCallBack.h"
 
 class class1
 {
@@ -23,6 +24,10 @@ public:
         RESTParameters *p = context->params;
         printf("c3: [%s]\r\n", context->matches[1].str().c_str());
     }
+    void c4(RESTContext* context)
+    {
+        context->responseCode = (RESTEngine::ResponseCode) 3;
+    }
 };
 
 
@@ -35,10 +40,12 @@ int main(int argc, char**argv)
     RESTEngine engine;
     class1* p = new class1();
 
-    RESTCallBack *pc1 = new RESTCallBack(p,&class1::c1,"d1");
-    RESTCallBack *pc2 = new RESTCallBack(p,&class1::c2,"d2");
-    RESTCallBack *pc3 = new RESTCallBack(p,&class1::c2,"d2");
-    RESTCallBack *pc4 = new RESTCallBack(p,&class1::c3,"d4");
+    RESTCallBack *pc1 = new RESTCallBack(p,&class1::c1,"description 1");
+    RESTCallBack *pc2 = new RESTCallBack(p,&class1::c2,"description 2");
+    RESTCallBack *pc3 = new RESTCallBack(p,&class1::c2,"description 2");
+    RESTCallBack *pc4 = new RESTCallBack(p,&class1::c3,"description 4");
+    RESTCallBack *pc5 = new RESTCallBack(p,&class1::c4,"description 5");
+
     pc1->addParam("p1","p1 description");
     pc1->addParam("p2","p1 description");
     pc2->addParam("p3","p3 description");
@@ -51,6 +58,7 @@ int main(int argc, char**argv)
     engine.addCallBack("/test2/blah2","GET",pc2);
     engine.addCallBack("/test2/t.*","DELETE",pc3);
     engine.addCallBack("/test3/([a-z0-9]*)","POST",pc4);
+    engine.addCallBack("/test4", "GET", pc5);
 
     Dumais::JSON::JSON j;
     RESTEngine::ResponseCode rc;
@@ -64,6 +72,8 @@ int main(int argc, char**argv)
     CHECK(rc == RESTEngine::NotFound);
     rc = engine.invoke(j,"/test3/product144","POST","");
     CHECK(rc == RESTEngine::OK);
+    rc = engine.invoke(j,"/test4","GET","");
+    CHECK(rc == 3);
 
     Dumais::JSON::JSON json;
     engine.documentInterface(json);

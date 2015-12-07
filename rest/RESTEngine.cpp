@@ -1,4 +1,5 @@
 #include "RESTEngine.h"
+#include "RESTCallBack.h"
 #include <sstream>
 #include <stdio.h>
 #include <algorithm>
@@ -92,8 +93,7 @@ RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j, std::string u
 
     if (p)
     {
-        p->call(j,urlPart2, data, matches);
-        return OK;
+        return p->call(j,urlPart2, data, matches);
     }
     return NotFound;
 }

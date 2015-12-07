@@ -1,10 +1,12 @@
 #ifndef RESTENGINE_H
 #define RESTENGINE_H
 
-#include "RESTCallBack.h"
+#include "json/JSON.h"
 #include <regex>
 #include <list>
 #include <map>
+
+class RESTCallBack; // Convenient forward declaration avoiding to include RESTCallback.h
 
 struct ResourceIdentifier
 {
