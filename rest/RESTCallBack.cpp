@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <iostream>
 #include "RESTCallBack.h"
 
 RESTCallBack::~RESTCallBack()
@@ -27,6 +28,16 @@ void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
 RESTEngine::ResponseCode RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
 {
     RESTParameters params(paramString, mParamList);
+    // Let's check mandatory/required params
+    for (ParamMap::const_iterator it = mParamList.begin(); it != mParamList.end(); ++it) {
+        if (it->second.mRequired) {
+            if (params.getParam(it->first).empty()) {
+                std::cerr << "Missing mandatory parameter " <<  it->first << std::endl;
+                // todo : replace empty parameter value by default parameter value
+            }
+        }
+    }
+
     RESTEngine::ResponseCode responseCode = RESTEngine::ResponseCode::OK;
     RESTContext context ={
         json,

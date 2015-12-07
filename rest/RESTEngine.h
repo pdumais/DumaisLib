@@ -26,8 +26,14 @@ public:
     enum ResponseCode
     {
         OK,
+        Created,
+        Accepted,
+        BadRequest,
+        Forbidden,
         NotFound,
-        MethodNotAllowed
+        MethodNotAllowed,
+        NotImplemented,
+        ServiceUnavailable
     };
 
     RESTEngine();

@@ -43,6 +43,7 @@ RESTParameters::RESTParameters(const std::string &params, const ParamMap &regist
             break;
         }
     }
+
 }
 
 RESTParameters::~RESTParameters(){
