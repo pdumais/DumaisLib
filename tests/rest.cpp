@@ -26,8 +26,19 @@ public:
     }
     void c4(RESTContext* context)
     {
-        context->responseCode = (RESTEngine::ResponseCode) 3;
+        context->responseCode = (RESTEngine::ResponseCode) 99;
     }
+    void c5(RESTContext* context)
+    {
+        if (!context->userData.get()) {
+            std::cerr << "Failed to retrieve user data for this call" << std::endl;
+            context->responseCode = RESTEngine::ResponseCode::ServiceUnavailable;
+        }
+        else {
+            // the user data has been successfully transferred from the invoke() to this callback implementation.
+        }
+    }
+
 };
 
 
@@ -45,6 +56,7 @@ int main(int argc, char**argv)
     RESTCallBack *pc3 = new RESTCallBack(p,&class1::c2,"description 2");
     RESTCallBack *pc4 = new RESTCallBack(p,&class1::c3,"description 4");
     RESTCallBack *pc5 = new RESTCallBack(p,&class1::c4,"description 5");
+    RESTCallBack *pc6 = new RESTCallBack(p,&class1::c5,"description 6");
 
     pc1->addParam("p1","p1 description");
     pc1->addParam("p2","p1 description");
@@ -59,10 +71,11 @@ int main(int argc, char**argv)
     engine.addCallBack("/test2/t.*","DELETE",pc3);
     engine.addCallBack("/test3/([a-z0-9]*)","POST",pc4);
     engine.addCallBack("/test4", "GET", pc5);
+    engine.addCallBack("/test5", "GET", pc6);
 
     Dumais::JSON::JSON j;
     RESTEngine::ResponseCode rc;
-    rc = engine.invoke(j,"/test1/blah?p1=test1 ","GET","");
+    rc = engine.invoke(j,"/test1/blah?p1=test1&p2=test2 ","GET","");
     CHECK(rc == RESTEngine::OK);
     rc = engine.invoke(j,"/test2/blah2?p1=test1&p2=test2&p3=test3&p4=test4","GET","");
     CHECK(rc == RESTEngine::OK);
@@ -73,7 +86,10 @@ int main(int argc, char**argv)
     rc = engine.invoke(j,"/test3/product144","POST","");
     CHECK(rc == RESTEngine::OK);
     rc = engine.invoke(j,"/test4","GET","");
-    CHECK(rc == 3);
+    CHECK(rc == 99);
+    std::shared_ptr<int> myUserData = std::make_shared<int>(999);
+    rc = engine.invoke(j,"/test5","GET","", myUserData);
+    CHECK(rc == RESTEngine::OK);
 
     Dumais::JSON::JSON json;
     engine.documentInterface(json);

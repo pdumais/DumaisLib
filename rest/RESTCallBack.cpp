@@ -25,15 +25,20 @@ void RESTCallBack::getDescription(Dumais::JSON::JSON& json)
     }
 }
 
-RESTEngine::ResponseCode RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& dataString, std::smatch& matches)
+RESTEngine::ResponseCode RESTCallBack::call(Dumais::JSON::JSON& json, const std::string& paramString,
+                                            const std::string& dataString, std::smatch& matches,
+                                            std::shared_ptr<void> userData)
 {
     RESTParameters params(paramString, mParamList);
-    // Let's check mandatory/required params
+    // Let's check required params
     for (ParamMap::const_iterator it = mParamList.begin(); it != mParamList.end(); ++it) {
-        if (it->second.mRequired) {
+        // todo later : handle/check in "path" parameters: http://server:port/param1/param2
+        if (it->second.mRequired && (it->second.mLocation == "query") ) {
             if (params.getParam(it->first).empty()) {
                 std::cerr << "Missing mandatory parameter " <<  it->first << std::endl;
                 // todo : replace empty parameter value by default parameter value
+                json.addValue("Missing required parameter " + it->first, "error");
+                return RESTEngine::ResponseCode::BadRequest;
             }
         }
     }
@@ -44,7 +49,8 @@ RESTEngine::ResponseCode RESTCallBack::call(Dumais::JSON::JSON& json, const std:
         &params,
         dataString,
         matches,
-        responseCode
+        responseCode,
+        userData
     };
     assert(mCallback);
     if (mCallback)

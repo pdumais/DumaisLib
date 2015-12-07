@@ -13,6 +13,7 @@ struct RESTContext
     const std::string& data;
     std::smatch& matches;
     RESTEngine::ResponseCode &responseCode;
+    std::shared_ptr<void> userData;
 };
 
 class RESTCallBack
@@ -62,6 +63,6 @@ public:
                 j.addValue(it->second.mDefaultValue, "default");
         }
     }
-    RESTEngine::ResponseCode call(Dumais::JSON::JSON& json, const std::string& paramString, const std::string& data, std::smatch&);
+    RESTEngine::ResponseCode call(Dumais::JSON::JSON& json, const std::string& paramString,
+                                  const std::string& data, std::smatch&, std::shared_ptr<void> userData = NULL);
 };
-

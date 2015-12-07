@@ -48,7 +48,8 @@ void RESTEngine::removeCallBack(RESTCallBack* p)
 }
 
 RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j, std::string url,
-                                            const std::string& method, const std::string& data) const
+                                            const std::string& method, const std::string& data,
+                                            std::shared_ptr<void> userData) const
 {
     std::string tmp = method;
     std::transform(tmp.begin(),tmp.end(),tmp.begin(),::toupper); 
@@ -93,7 +94,7 @@ RESTEngine::ResponseCode RESTEngine::invoke(Dumais::JSON::JSON& j, std::string u
 
     if (p)
     {
-        return p->call(j,urlPart2, data, matches);
+        return p->call(j,urlPart2, data, matches, userData);
     }
     return NotFound;
 }

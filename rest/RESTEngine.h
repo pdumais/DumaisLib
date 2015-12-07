@@ -41,7 +41,8 @@ public:
 
     void addCallBack(std::string url, std::string method, RESTCallBack* p);
     void removeCallBack(RESTCallBack* p);
-    ResponseCode invoke(Dumais::JSON::JSON& j,std::string url, const std::string& method, const std::string& data) const;
+    ResponseCode invoke(Dumais::JSON::JSON& j, std::string url, const std::string& method, const std::string& data,
+                        std::shared_ptr<void> userData = NULL) const;
     
     void documentInterface(Dumais::JSON::JSON& j);
 
