@@ -1,5 +1,6 @@
 # DumaisLib
-This is a library containing several utilities for some of my projects. Previously, the libraries were all individual but it became more simple
+This is a library containing several utilities for some projects of Patrick Dumais. 
+Previously, the libraries were all individual but it became more simple
 to just merge all projects together.
 
 

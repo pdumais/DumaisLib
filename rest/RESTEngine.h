@@ -5,6 +5,7 @@
 #include <regex>
 #include <list>
 #include <map>
+#include <memory>
 
 class RESTCallBack; // Convenient forward declaration avoiding to include RESTCallback.h
 

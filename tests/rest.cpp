@@ -35,6 +35,15 @@ public:
             context->responseCode = RESTEngine::ResponseCode::ServiceUnavailable;
         }
         else {
+            std::shared_ptr<int> myInt = std::static_pointer_cast<int>(context->userData);
+            if (!myInt) {
+                context->responseCode = RESTEngine::ResponseCode::ServiceUnavailable;
+                return;
+            }
+            if (*myInt != 999) {
+                context->responseCode = RESTEngine::ResponseCode::ServiceUnavailable;
+                return;
+            }
             // the user data has been successfully transferred from the invoke() to this callback implementation.
         }
     }
@@ -93,7 +102,7 @@ int main(int argc, char**argv)
 
     Dumais::JSON::JSON json;
     engine.documentInterface(json);
-    printf("%s\r\n",json.stringify(true).c_str());
+    CHECK(!json.stringify(true).empty());
 
     Dumais::JSON::JSON swaggerSchema;
     engine.documentSwaggerInterface(swaggerSchema, "1", "title", "description", "http", "localhost", "/api");
