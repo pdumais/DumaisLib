@@ -6,3 +6,4 @@ sdk
 webserver/*.o
 websocket/*.o
 utils/*.o
+*.a
