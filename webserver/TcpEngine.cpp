@@ -1,4 +1,5 @@
 #include "TcpEngine.h"
+#include "utils/Logging.h"
 using namespace Dumais::WebServer;
 
 
@@ -12,6 +13,16 @@ TcpEngine::~TcpEngine()
 {
     if (this->tcpServer != 0) delete this->tcpServer;
     if (this->clientFactory != 0) delete this->clientFactory;
+}
+
+void TcpEngine::setStopEventHandler(std::function<void()> handler)
+{
+    if (!this->tcpServer) 
+    {
+        LOG("can't set event handler if init has not been called");
+        return;
+    }
+    this->tcpServer->setStopEventHandler(handler);
 }
 
 void TcpEngine::init(int port, std::string bindAddr, int maxConnections)

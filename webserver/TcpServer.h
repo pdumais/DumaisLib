@@ -13,6 +13,7 @@ public:
     ~TcpServer();    
 
     bool start();
+    void setStopEventHandler(std::function<void()> handler);
     bool setSecurity(char* certificatePath, char* privateKeyPath);
     void run();
     void stop();
@@ -29,6 +30,7 @@ private:
     std::string bindAddress;
     std::string certificatePath;    
     std::string privateKeyPath;    
+    std::function<void()> stopEvent;
 
 
     bool processAccept(int efd);

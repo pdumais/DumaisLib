@@ -31,6 +31,11 @@ TcpServer::~TcpServer()
     if (this->listenSocket != 0) delete this->listenSocket;
 }
 
+void TcpServer::setStopEventHandler(std::function<void()> handler)
+{
+    stopEvent = handler;
+}
+
 bool TcpServer::setSecurity(char* certificatePath, char* privateKeyPath)
 {
     if (!SECURE_IMPLEMENTATION) return false;
@@ -78,6 +83,7 @@ bool TcpServer::start()
 
 void TcpServer::stop()
 {
+    LOG("setting stopping to true because of stop()");
     stopping = true;
     write(this->controlEventFd,(char*)&controlTxMessage[0], 8);    
 
@@ -124,6 +130,9 @@ void TcpServer::run()
         // Process all outgoing
         this->processSend();
     }
+
+    LOG("TCP server thread exit");
+
     // Kill all clients
     for (auto it = this->clientList.begin(); it != clientList.end(); it++)
     {
@@ -135,6 +144,8 @@ void TcpServer::run()
     close(this->controlEventFd);
     close(efd);
     delete[] events;
+
+    if (stopEvent) stopEvent();
 }
 
 void TcpServer::removeFdFromEpoll(int efd, int fd)
@@ -153,6 +164,7 @@ void TcpServer::addFdToEpoll(int efd, int fd)
 
 void TcpServer::abort()
 {
+    LOG("setting stopping to true because of abort");
     this->stopping = true;
 }
 

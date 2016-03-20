@@ -13,6 +13,7 @@ public:
     ~TcpEngine();
 
     void init(int port, std::string bindAddr, int maxConnections);
+    void setStopEventHandler(std::function<void()> handler);
     bool startSecure(char* certificatePath, char* privateKeyPath);
     bool start();
     void stop();
@@ -20,6 +21,7 @@ public:
 private:
     TcpServer* tcpServer;
     IClientFactory *clientFactory;
+    std::function<void()> stopEventHandler;
 };
 
 }
