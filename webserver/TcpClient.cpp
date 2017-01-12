@@ -35,7 +35,11 @@ TcpClient::~TcpClient()
     }
     delete this->txList;
     if (this->context != 0)  delete this->context;
-    if (this->mSocket) delete this->mSocket;
+    if (this->mSocket)
+    {
+        this->mSocket->close();
+        delete this->mSocket;
+    }
 }
 
 ISocket* TcpClient::getSocket()
