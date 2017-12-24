@@ -14,9 +14,11 @@ public:
 
     bool start();
     void setStopEventHandler(std::function<void()> handler);
+    void setAsyncQueueEventHandler(std::function<void()> handler);
     bool setSecurity(char* certificatePath, char* privateKeyPath);
     void run();
     void stop();
+    void notifyAsyncQueue();
 
 private:
     IClientFactory* clientFactory;
@@ -31,6 +33,7 @@ private:
     std::string certificatePath;    
     std::string privateKeyPath;    
     std::function<void()> stopEvent;
+    std::function<void()> asyncQueueEvent;
 
 
     bool processAccept(int efd);

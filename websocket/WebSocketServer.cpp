@@ -47,7 +47,7 @@ WebSocketServer::WebSocketServer(int port, int maxConnections)
     sockadd.sin_family=AF_INET;
     sockadd.sin_addr.s_addr=INADDR_ANY; //inet_addr(this->bindAddress.c_str());
     sockadd.sin_port=htons(port);
-    char r = 1;
+    int r = 1;
     setsockopt(this->listenSocket,SOL_SOCKET,SO_REUSEADDR,&r,sizeof(r));
     if (bind(this->listenSocket,(struct sockaddr *)&sockadd,sizeof(sockadd))<0)
     {

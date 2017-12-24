@@ -36,6 +36,11 @@ void TcpServer::setStopEventHandler(std::function<void()> handler)
     stopEvent = handler;
 }
 
+void TcpServer::setAsyncQueueEventHandler(std::function<void()> handler)
+{
+    asyncQueueEvent = handler;
+}
+
 bool TcpServer::setSecurity(char* certificatePath, char* privateKeyPath)
 {
     if (!SECURE_IMPLEMENTATION) return false;
@@ -54,7 +59,7 @@ bool TcpServer::start()
     sockadd.sin_family=AF_INET;
     sockadd.sin_addr.s_addr=inet_addr(this->bindAddress.c_str());
     sockadd.sin_port=htons(this->listeningPort);
-    char r = 1;
+    int r = 1;
     setsockopt(s,SOL_SOCKET,SO_REUSEADDR,&r,sizeof(r));
     if (bind(s,(struct sockaddr *)&sockadd,sizeof(sockadd))<0) return false;
     listen(s,this->maxConnections);
@@ -79,6 +84,11 @@ bool TcpServer::start()
     this->reactorThread = new std::thread(&TcpServer::run, this);
 
     return true;
+}
+
+void TcpServer::notifyAsyncQueue()
+{
+    write(this->controlEventFd,(char*)&controlTxMessage[0], 8);    
 }
 
 void TcpServer::stop()
@@ -115,6 +125,7 @@ void TcpServer::run()
             }
             else if (events[i].data.fd == this->controlEventFd)
             {
+                //TODO: Should reall all of it
                 //nothing to do. It was just to wake the thread up.
                 read(this->controlEventFd, (char*)&controlRxMessage, 8);
             }    
@@ -128,6 +139,7 @@ void TcpServer::run()
         }
 
         // Process all outgoing
+        if (asyncQueueEvent) asyncQueueEvent();
         this->processSend();
     }
 

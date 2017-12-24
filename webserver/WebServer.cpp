@@ -7,6 +7,7 @@
 #include "utils/md5.h"
 
 using namespace Dumais::WebServer;
+using namespace Dumais::Utils;
 
 
 #define BUFSIZE 1024
@@ -20,7 +21,7 @@ Notes on authorization:
     will not issue a 401 for other requests if the session is still valid.
 
 */
-WebServer::WebServer(unsigned int port, const std::string& bindAddr, unsigned int maxConnections)
+WebServer::WebServer(unsigned int port, const std::string& bindAddr, unsigned int maxConnections, bool async)
     :TcpEngine(new ClientFactory<HTTPFramingStrategy>(this))
 {
     this->init(port, bindAddr, maxConnections);
@@ -28,6 +29,29 @@ WebServer::WebServer(unsigned int port, const std::string& bindAddr, unsigned in
     mSessionExpires = 0;
     srand(time(0));
     mpListener = 0;
+    mAsync = async;
+    mAsyncResponses = new MPSCRingBuffer<AsyncResponse*>(200);
+    this->setAsyncQueueEventHandler([this](){
+        this->processAsyncQueue();
+    });
+}
+
+WebServer::~WebServer()
+{
+    delete mAsyncResponses;
+}
+
+void WebServer::processAsyncQueue()
+{
+    AsyncResponse* ar;
+    while (this->mAsyncResponses->get(ar))
+    {
+        if (this->clients.count(ar->client))
+        {
+            this->sendResponse(ar->resp,ar->client);
+        }
+        delete ar;
+    }
 }
 
 void WebServer::onFramingError(TcpClient* client, int error)
@@ -75,13 +99,36 @@ void WebServer::onClientMessage(TcpClient* client, char* buffer, size_t size)
     {
         if (mpListener!=0)
         {
-            resp = mpListener->processHTTPRequest(req);
-            if (resp!=0 && auth.nonce!="" && mSessions.find(auth.nonce)!=mSessions.end())
+            std::string cookie;
+            if (auth.nonce!="" && mSessions.find(auth.nonce)!=this->mSessions.end())
             {
-                std::string cookie = "session="+auth.nonce;
-                resp->setCookie(cookie);
+                cookie = "session="+auth.nonce;
             }
-            sendResponse(resp,client);
+
+            if (this->mAsync)
+            {
+                mpListener->processHTTPRequestAsync(req,[this,client,cookie](HTTPResponse* resp){
+                    AsyncResponse *ar = new AsyncResponse();
+                    ar->client = client;
+                    ar->resp = resp;    
+                    if (cookie != "" && resp) resp->setCookie(cookie);
+                    if (!this->mAsyncResponses->put(ar))
+                    {
+                        delete ar;
+                        //TODO: should handle that error
+                    }
+                    else
+                    {
+                        this->notifyAsyncQueue();
+                    }
+                });
+            }
+            else
+            {
+                resp = mpListener->processHTTPRequest(req);
+                if (cookie != "" && resp) resp->setCookie(cookie);
+                sendResponse(resp,client);
+            }
         }
         else
         {

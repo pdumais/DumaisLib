@@ -15,6 +15,16 @@ TcpEngine::~TcpEngine()
     if (this->clientFactory != 0) delete this->clientFactory;
 }
 
+void TcpEngine::notifyAsyncQueue()
+{
+    if (!this->tcpServer) 
+    {
+        LOG("can't trigger event handler if init has not been called");
+        return;
+    }
+    this->tcpServer->notifyAsyncQueue();
+}
+
 void TcpEngine::setStopEventHandler(std::function<void()> handler)
 {
     if (!this->tcpServer) 
@@ -23,6 +33,16 @@ void TcpEngine::setStopEventHandler(std::function<void()> handler)
         return;
     }
     this->tcpServer->setStopEventHandler(handler);
+}
+
+void TcpEngine::setAsyncQueueEventHandler(std::function<void()> handler)
+{
+    if (!this->tcpServer) 
+    {
+        LOG("can't set event handler if init has not been called");
+        return;
+    }
+    this->tcpServer->setAsyncQueueEventHandler(handler);
 }
 
 void TcpEngine::init(int port, std::string bindAddr, int maxConnections)
