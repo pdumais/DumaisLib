@@ -36,6 +36,7 @@ public:
     HTTPAuth getAuthorization(); 
     std::string getCookie(const std::string& name);
     bool wantsAuthenticationHack();
+    std::string getData();
 
 };
 

@@ -39,6 +39,14 @@ std::string HTTPRequest::getHeader(const std::string& header)
     return "";
 }
 
+std::string HTTPRequest::getData()
+{
+    std::string ret;
+    size_t pos = mHeader.size()+1;
+    
+    ret.assign((char*)&mBuffer[pos],mSize-pos);
+    return ret;
+}
 
 bool HTTPRequest::accepts(const std::string& accept)
 {
