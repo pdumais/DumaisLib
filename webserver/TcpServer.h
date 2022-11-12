@@ -3,6 +3,7 @@
 #include <map>
 #include <thread>
 #include "ISocket.h"
+#include <functional>
 
 namespace Dumais{
 namespace WebServer{
