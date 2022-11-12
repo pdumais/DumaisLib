@@ -23,6 +23,7 @@ SOFTWARE.
 */
 #pragma once
 #include <map>
+#include <string>
 
 #define MAX_HTTP_DATA 1024
 
